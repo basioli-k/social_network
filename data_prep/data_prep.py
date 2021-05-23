@@ -5,7 +5,7 @@ if __name__ == "__main__":
 	
 	config = configparser.ConfigParser()
 
-	config.read("data.ini")
+	config.read("data.cfg")
 
 	data = eval(config["data"]["data"])
 
