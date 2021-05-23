@@ -1,16 +1,29 @@
 #!/usr/bin/env python3
 
+import sys
+sys.path.insert(1, '../entities')
+
+from college import *
+
 if __name__ == "__main__":
-	import configparser, json
+	import configparser
 	
 	config = configparser.ConfigParser()
-
 	config.read("data.cfg")
 
 	data = eval(config["data"]["data"])
 
+	colleges = []
+
 	for element in data:
-		print("College name:", element["name"])
-		print("Short name:", element["short_name"])
-		print("Area:",element["area"])
-		print("Skills:",element["skills"])
+		colleges.append( College(element) )
+	
+	for college in colleges:
+		college.print_college()
+
+	print("--------------------------------------------------------------------")
+	#pogledajte kolike presjeke imate
+	for el1 in colleges:
+		for el2 in colleges:
+			if el1.short_name != el2.short_name:
+				print(el1.short_name, "and", el2.short_name, "have intersection:", len(set(el1.skills).intersection( set(el2.skills) ) ) )
