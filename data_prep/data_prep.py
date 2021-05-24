@@ -9,9 +9,9 @@ if __name__ == "__main__":
 	import configparser, json
 	
 	config = configparser.ConfigParser()
-	config.read("data.cfg")
+	config.read("data.cfg", encoding='utf-8')
 
-	data = json.loads(config["data"]["data"])
+	data = json.loads(config["data"]["colleges"])
 
 	colleges = []
 
