@@ -6,12 +6,12 @@ sys.path.insert(1, '../entities')
 from college import *
 
 if __name__ == "__main__":
-	import configparser
+	import configparser, json
 	
 	config = configparser.ConfigParser()
 	config.read("data.cfg")
 
-	data = eval(config["data"]["data"])
+	data = json.loads(config["data"]["data"])
 
 	colleges = []
 
