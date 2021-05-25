@@ -11,3 +11,18 @@ class College:
 		print("Short name:", self.short_name)
 		print("Area:", self.area)
 		print("Skills:", self.skills)
+		
+	# def __init__ (self, name, short_name, area):
+	# 	self.name = name
+	# 	self.short_name = short_name
+	# 	self.area = area
+        
+	def __str__(self):
+		s = ":College {"
+		s += "name: \'" + self.name + "\', "
+		s += "short_name: \'" + self.short_name + "\', "
+		s += "area: \'" + self.area + "\'}"
+		return s
+    
+	def db_create(self):
+		return "CREATE(" + str(self) + ");"
