@@ -9,6 +9,9 @@ import random
 import datetime
 import pandas as pd
 import codecs
+import time
+
+MAX_GENERATING_TIME = 5
 
 MIN_BIRTH_YEAR = 1980
 MAX_BIRTH_YEAR = 2000
@@ -42,8 +45,12 @@ def generate_person():
 
 def generate_people(n):
     people=[]
-    for i in range(n):
+    start = time.time()
+    end = time.time()
+    while( len(people) <= n and end - start <= MAX_GENERATING_TIME ):
         people.append(generate_person())
+        people = list(set(people))
+        end = time.time()
     return people
 
 def db_create_friendship(person1, person2):
@@ -87,7 +94,7 @@ def create_attendence(people, colleges):
 
 if __name__ == "__main__":
     import configparser, json
-	
+
     config = configparser.ConfigParser()
     config.read("data.cfg", encoding='utf-8')
 
@@ -116,9 +123,4 @@ if __name__ == "__main__":
          print(college.db_create())
 
     print(create_attendence(people, colleges))
-    print(create_friendships(people))
-
-
-    
-
-    
+    print(create_friendships(people))    

@@ -1,5 +1,5 @@
 class Person:
-        def __init__(self, name, surname, gender, date_of_birth, skills, hobbies):
+        def __init__(self, name, surname, gender = "m", date_of_birth = "01.01.2000.", skills = [], hobbies = []):
             self.name =  name
             self.surname = surname
             self.gender = gender
@@ -17,6 +17,14 @@ class Person:
                 s += "skills: \'" + str(self.skills) + "\', "
             s += "hobbies: \'" + str(self.hobbies) + "\'}"
             return s
+
+        def __hash__(self):
+            return hash((self.name, self.surname))
+
+        def __eq__(self, person):
+            if isinstance(person, Person):
+                return (self.name == person.name and self.surname == person.surname)
+            return False
             
         def db_create(self):
             return "CREATE( " + str(self) + ");"
