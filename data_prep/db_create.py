@@ -10,6 +10,7 @@ import datetime
 import pandas as pd
 import codecs
 import time
+import os.path
 
 MAX_GENERATING_TIME = 5
 
@@ -32,6 +33,18 @@ POPULATION = 200
 
 COLLEGE_ATTENDECE = 0.9
 
+def print_to_file(path, header, element):
+    standard_output = sys.stdout
+    if (not os.path.exists(path)):
+        with open(path, 'a', encoding="utf-8") as file:
+            sys.stdout = file
+            print(header)
+
+    with open(path, 'a',  encoding="utf-8") as file:
+        sys.stdout = file   
+        print(element)
+
+    sys.stdout = standard_output
 
 def generate_person():
     name_and_gender = df_names.sample()
@@ -58,7 +71,10 @@ def db_create_friendship(person1, person2):
     if( year > 2020):
         return
     start_date = datetime.date(random.randint(year,MAX_YEAR),random.randint(1,12),random.randint(1,28))
-    s = "MARCH (p1" + str(person1) + "), (p2" + str(person2) + ")\n"
+
+    print_to_file("../database/friendships.csv", "id_first,id_second,start_date", f"{person1.id},{person2.id},{start_date}")
+
+    s = "MATCH (p1" + str(person1) + "), (p2" + str(person2) + ")\n"
     s += "CREATE (p1)-[:IS_FRIEND {start_date: " + str(start_date) + "}]->(p2);"
     return s
 
@@ -75,7 +91,10 @@ def db_create_attendence(person, college):
     enrollment_year = random.randint(person.date_of_birth.year + 18,2020)
     graduate_year = enrollment_year + random.randint(5,10)
     grade = random.randint(2,5)
-    s = "MARCH (p" + str(person) + "), (s" + str(college) + ")\n"
+
+    print_to_file("../database/attendance.csv", "person_id,college_id,enrollment_year,graduate_year,grade", f"{person.id},{college.id},{enrollment_year},{graduate_year},{grade}")
+
+    s = "MATCH (p" + str(person) + "), (s" + str(college) + ")\n"
     s += "CREATE (p)-[:ATTENDED {enrollment_year: \'" + str(enrollment_year) + "\', "
     if graduate_year < 2020:
         s += "graduate_year: \'" + str(graduate_year) + "\', "
@@ -86,11 +105,11 @@ def create_attendence(people, colleges):
     s = ""
     for person in people:
         if random.random() < COLLEGE_ATTENDECE:
+            college = random.choice(colleges)
             person.skills= list(set(person.skills).union(random.sample(college.skills,random.randint(MIN_COLLEGE_SKILLS,MAX_COLLEGE_SKILLS))))
-            s += db_create_attendence(person, random.choice(colleges)) + "\n"
+            s += db_create_attendence(person, college) + "\n"
             s += "MATCH (p" + str(person) + ")\n"
             s += "SET p.skills = \'" + str(person.skills) + "\';"
-    return s
 
 if __name__ == "__main__":
     import configparser, json
@@ -116,11 +135,12 @@ if __name__ == "__main__":
 
     people = generate_people(POPULATION)
 
+    create_attendence(people, colleges)
+    create_friendships(people)  
+
     for person in people:
-        print(person.db_create())
-
+        print_to_file("../database/people.csv", Person.csv_header(), person.csv_format())
+    
     for college in colleges:
-         print(college.db_create())
-
-    print(create_attendence(people, colleges))
-    print(create_friendships(people))    
+        print_to_file("../database/college.csv", College.csv_header(), college.csv_format())
+        
