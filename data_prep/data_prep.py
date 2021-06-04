@@ -2,6 +2,9 @@
 
 import sys
 sys.path.insert(1, '../entities')
+sys.path.insert(2, '../database')
+
+from database import *
 
 from college import *
 
@@ -14,6 +17,8 @@ if __name__ == "__main__":
 	data = json.loads(config["data"]["colleges"])
 
 	colleges = []
+
+	d = Database.get_instance("../database/database.cfg")
 
 	for element in data:
 		colleges.append( College(element) )

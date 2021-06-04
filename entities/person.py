@@ -1,13 +1,16 @@
 class Person:
     _id = 1
-    def __init__(self, name, surname, gender = "m", date_of_birth = "01.01.2000.", skills = [], hobbies = []):
+    def __init__(self, name, surname, gender = "m", date_of_birth = "01.01.2000.", skills = [], hobbies = [], id = None):
         self.name =  name
         self.surname = surname
         self.gender = gender
         self.date_of_birth = date_of_birth
         self.skills = skills
         self.hobbies = hobbies
-        self.id = Person._id
+        if id == None:
+            self.id = Person._id
+        else:
+            self.id = id
         Person._id += 1          #na ovaj nacin je _id staticka varijabla
         
     def __str__(self):

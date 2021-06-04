@@ -1,5 +1,6 @@
 from neo4j import GraphDatabase
-import shutil, os, sys
+from neo4j.exceptions import Neo4jError
+import shutil, os, sys, configparser
 
 sys.path.insert(1, '../entities')
 
@@ -20,10 +21,42 @@ def add_attribute(header_element):
     return f"{header_element}: csv_line.{header_element}"
 
 #napravi da bude singleton
-class Database:
 
-    def __init__(self, uri, user, password):
-        self.driver = GraphDatabase.driver(uri, auth=(user, password))
+class Singleton:
+   __instance = None
+   @staticmethod 
+   def getInstance():
+      """ Static access method. """
+      if Singleton.__instance == None:
+         Singleton()
+      return Singleton.__instance
+   def __init__(self):
+      """ Virtually private constructor. """
+      if Singleton.__instance != None:
+         raise Exception("This class is a singleton!")
+      else:
+         Singleton.__instance = self
+
+class Database:
+    __instance = None
+
+    @staticmethod
+    def get_instance(path = "database.cfg"):
+        if Database.__instance == None:
+            Database(path)
+        return Database.__instance
+
+    def __init__(self, path):
+        if Database.__instance != None:
+            raise Neo4jError("This class is a singleton!")
+        else:
+            config = configparser.ConfigParser()
+            config.read(path, encoding='utf-8')
+            db_url = config["database"]["url"] 
+            username = config["database"]["username"]
+            password = config["database"]["password"]
+            self.driver = GraphDatabase.driver(db_url, auth=(username, password))
+            Database.__instance = self
 
     def close(self):
         self.driver.close()
@@ -83,10 +116,9 @@ class Database:
 
     def load_csv_relationship(self, rel):
         cypher = self.get_load_command_relation(rel["file_name"], rel["header"], rel["relation"])
-        print(cypher)
+
         with self.driver.session() as session:
             result = session.run(cypher)
-            print(result)
     
     def delete_database(self):
         with self.driver.session() as session:
@@ -94,25 +126,26 @@ class Database:
                 session.run("MATCH (a) -[r] -> () DELETE a, r")  #delete all nodes with directed relationships
                 session.run("MATCH (a)-[r]-() DELETE a, r;")    #delete all nodes with undirected relatinoships
                 session.run("MATCH (a) DELETE a;")              #delete all remaining nodes
-            except Exception as ce:
+            except Neo4jError as ce:
                 print(ce.message)
-                
+
 
 if __name__ == "__main__":
-    import configparser, json
+    import json
 
     config = configparser.ConfigParser()
 
     config.read("database.cfg", encoding='utf-8')
-
     db_url = config["database"]["url"] 
     username = config["database"]["username"]
     password = config["database"]["password"]
+  
+
     import_path = config["database"]["import_path"]   #todo generalizacija onog patha u configu
     entity_info = json.loads(config["database"]["entity_info"])
     relationship_info = json.loads(config["database"]["relationship_info"])
 
-    db = Database(db_url, username, password)
+    db = Database.get_instance()
 
     db.delete_database()
 
@@ -120,24 +153,29 @@ if __name__ == "__main__":
         if filename.endswith(".csv"):
             if os.path.exists(f'{import_path}/{filename}'):
                 os.remove(f'{import_path}/{filename}')
-            # shutil.copyfile(filename, import_path)      ovo treba pristup iz nekog razloga?
+            #shutil.copyfile(filename, import_path)      #ovo treba pristup iz nekog razloga?
             shutil.move(filename, import_path)
 
     for entity in entity_info:
         try:
             db.create_constraint(entity["entity"])
-        except Exception as ce:
+        except Neo4jError as ce:
             print(ce.message)
         
         try:
             db.load_csv_entities(entity)
-        except Exception as ce:
+        except Neo4jError as ce:
             print(ce.message)
+
+    try:
+        db.driver.session().run("CREATE CONSTRAINT constraint_name ON (n:Person) ASSERT (n.name, n.surname) IS NODE KEY;")  #stvara constraint na ime i prezime, problem je sto je ovo cini se dostupno samo u
+    except Neo4jError as ce:                                                                                                 #enterprise verziji meni radi ali ne znam kako ostalima
+        print(ce.message)
 
     for rel in relationship_info:
         try:
             db.load_csv_relationship(rel)
-        except Exception as ce:
+        except Neo4jError as ce:
             print(ce.message)
 
     db.close()
