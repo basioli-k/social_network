@@ -110,12 +110,11 @@ def create_attendence(people, colleges):
     s = ""
     delete_file("../database/attendance.csv")
     for person in people:
-        if random.random() < COLLEGE_ATTENDECE:
-            college = random.choice(colleges)
-            person.skills= list(set(person.skills).union(random.sample(college.skills,random.randint(MIN_COLLEGE_SKILLS,MAX_COLLEGE_SKILLS))))
-            s += db_create_attendence(person, college) + "\n"
-            s += "MATCH (p" + str(person) + ")\n"
-            s += "SET p.skills = \'" + str(person.skills) + "\';"
+        college = random.choice(colleges)
+        person.skills= list(set(person.skills).union(random.sample(college.skills,random.randint(MIN_COLLEGE_SKILLS,MAX_COLLEGE_SKILLS))))
+        s += db_create_attendence(person, college) + "\n"
+        s += "MATCH (p" + str(person) + ")\n"
+        s += "SET p.skills = \'" + str(person.skills) + "\';"
 
 if __name__ == "__main__":
     import configparser, json
