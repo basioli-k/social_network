@@ -20,22 +20,6 @@ def add_attribute(header_element):
         return f"{header_element}: split(csv_line.{header_element}, \":\")"
     return f"{header_element}: csv_line.{header_element}"
 
-#napravi da bude singleton
-
-class Singleton:
-   __instance = None
-   @staticmethod 
-   def getInstance():
-      """ Static access method. """
-      if Singleton.__instance == None:
-         Singleton()
-      return Singleton.__instance
-   def __init__(self):
-      """ Virtually private constructor. """
-      if Singleton.__instance != None:
-         raise Exception("This class is a singleton!")
-      else:
-         Singleton.__instance = self
 
 class Database:
     __instance = None
