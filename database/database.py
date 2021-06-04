@@ -77,8 +77,7 @@ class Database:
             else:
                 cypher += ", " + add_attribute(header_element)
 
-
-        cypher += "}]->(q);"
+        cypher += "}]->(q);"    
 
         return cypher
 
@@ -88,6 +87,16 @@ class Database:
         with self.driver.session() as session:
             result = session.run(cypher)
             print(result)
+    
+    def delete_database(self):
+        with self.driver.session() as session:
+            try:
+                session.run("MATCH (a) -[r] -> () DELETE a, r")  #delete all nodes with directed relationships
+                session.run("MATCH (a)-[r]-() DELETE a, r;")    #delete all nodes with undirected relatinoships
+                session.run("MATCH (a) DELETE a;")              #delete all remaining nodes
+            except Exception as ce:
+                print(ce.message)
+                
 
 if __name__ == "__main__":
     import configparser, json
@@ -104,6 +113,8 @@ if __name__ == "__main__":
     relationship_info = json.loads(config["database"]["relationship_info"])
 
     db = Database(db_url, username, password)
+
+    db.delete_database()
 
     for filename in os.listdir():
         if filename.endswith(".csv"):

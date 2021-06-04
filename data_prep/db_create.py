@@ -33,6 +33,10 @@ POPULATION = 200
 
 COLLEGE_ATTENDECE = 0.9
 
+def delete_file(path):
+    if os.path.exists(path):
+        os.remove(path)
+
 def print_to_file(path, header, element):
     standard_output = sys.stdout
     if (not os.path.exists(path)):
@@ -80,6 +84,7 @@ def db_create_friendship(person1, person2):
 
 def create_friendships(people):
     s = ""
+    delete_file("../database/friendships.csv")
     for person in people:
         friends = random.sample(people,random.randint(MIN_FRIENDS,MAX_FRIENDS))
         for friend in friends:
@@ -103,6 +108,7 @@ def db_create_attendence(person, college):
 
 def create_attendence(people, colleges):
     s = ""
+    delete_file("../database/attendance.csv")
     for person in people:
         if random.random() < COLLEGE_ATTENDECE:
             college = random.choice(colleges)
@@ -138,9 +144,11 @@ if __name__ == "__main__":
     create_attendence(people, colleges)
     create_friendships(people)  
 
+    delete_file("../database/people.csv")
     for person in people:
         print_to_file("../database/people.csv", Person.csv_header(), person.csv_format())
     
+    delete_file("../database/college.csv")
     for college in colleges:
         print_to_file("../database/college.csv", College.csv_header(), college.csv_format())
         
