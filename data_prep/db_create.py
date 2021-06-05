@@ -102,20 +102,14 @@ def db_create_friendship(person1, person2):
 
     print_to_file("../database/friendships.csv", "id_first,id_second,start_date", f"{person1.id},{person2.id},{start_date}")
 
-    s = "MATCH (p1" + str(person1) + "), (p2" + str(person2) + ")\n"
-    s += "CREATE (p1)-[:IS_FRIEND {start_date: " + str(start_date) + "}]->(p2);"
-    return s
-
 def create_friendships(people):
-    s = ""
     normalFriends = get_truncated_normal(mean=MEAN_FRIENDS, sd=SD_FRIENDS, low=MIN_FRIENDS, upp=MAX_FRIENDS)
     delete_file("../database/friendships.csv")
     for person in people:
         friends = random.sample(people, int(normalFriends.rvs()))
         for friend in friends:
             if(person is not friend):
-                s += db_create_friendship(person, friend) + "\n"
-    return s
+                db_create_friendship(person, friend)
 
 def db_create_attendence(person, college):
     enrollment_year = random.randint(person.date_of_birth.year + 18, MAX_DATE.year)
@@ -125,22 +119,12 @@ def db_create_attendence(person, college):
 
     print_to_file("../database/attendance.csv", "person_id,college_id,enrollment_year,graduate_year,grade", f"{person.id},{college.id},{enrollment_year},{graduate_year},{grade}")
 
-    s = "MATCH (p" + str(person) + "), (s" + str(college) + ")\n"
-    s += "CREATE (p)-[:ATTENDED {enrollment_year: \'" + str(enrollment_year) + "\', "
-    if graduate_year < MAX_DATE.year:
-        s += "graduate_year: \'" + str(graduate_year) + "\', "
-    s += "grade: \'" + str(grade) + "\'}]->(s);"
-    return s
-
 def create_attendence(people, colleges):
-    s = ""
     delete_file("../database/attendance.csv")
     for person in people:
         college = random.choice(colleges)
         person.skills= list(set(person.skills).union(random.sample(college.skills,random.randint(MIN_COLLEGE_SKILLS,MAX_COLLEGE_SKILLS))))
-        s += db_create_attendence(person, college) + "\n"
-        s += "MATCH (p" + str(person) + ")\n"
-        s += "SET p.skills = \'" + str(person.skills) + "\';"
+        db_create_attendence(person, college)
 
 def same_area(colleges):
     delete_file("../database/same_area.csv")
