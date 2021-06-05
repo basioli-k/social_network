@@ -26,9 +26,6 @@ MIN_HOBBIES = 4
 MAX_HOBBIES = 10
 
 MEAN_FRIENDS = 10
-SD_FRIENDS = 4
-MIN_FRIENDS = 0
-MAX_FRIENDS = 20
 
 MEAN_SKILLS = 2
 SD_SKILLS = 1
@@ -103,13 +100,12 @@ def db_create_friendship(person1, person2):
     print_to_file("../database/friendships.csv", "id_first,id_second,start_date", f"{person1.id},{person2.id},{start_date}")
 
 def create_friendships(people):
-    normalFriends = get_truncated_normal(mean=MEAN_FRIENDS, sd=SD_FRIENDS, low=MIN_FRIENDS, upp=MAX_FRIENDS)
     delete_file("../database/friendships.csv")
-    for person in people:
-        friends = random.sample(people, int(normalFriends.rvs()))
-        for friend in friends:
-            if(person is not friend):
-                db_create_friendship(person, friend)
+    friendCombinations = list (combinations(people, 2))
+    random.shuffle(friendCombinations)
+    for i in range(POPULATION * MEAN_FRIENDS):
+        combination = friendCombinations[i]
+        db_create_friendship(combination[0], combination[1])
 
 def db_create_attendence(person, college):
     enrollment_year = random.randint(person.date_of_birth.year + 18, MAX_DATE.year)
