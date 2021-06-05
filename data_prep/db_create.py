@@ -44,8 +44,6 @@ SD_GRADE = 1.5
 
 POPULATION = 200
 
-COLLEGE_ATTENDECE = 0.9
-
 def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
     return truncnorm(
         (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
@@ -138,6 +136,7 @@ def create_attendence(people, colleges):
         s += "SET p.skills = \'" + str(person.skills) + "\';"
 
 def same_area(colleges):
+    delete_file("../database/same_area.csv")
     for combination in combinations(colleges, 2):
         if combination[0].area == combination[1].area:
             print_to_file("../database/same_area.csv", "id_first_college,id_second_college",f"{combination[0].id},{combination[1].id}" )
