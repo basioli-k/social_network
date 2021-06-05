@@ -174,7 +174,7 @@ if __name__ == "__main__":
 
     people = generate_people(POPULATION)
 
-    #create_attendence(people, colleges)
+    create_attendence(people, colleges)
     create_friendships(people)  
 
     delete_file("../database/people.csv")
