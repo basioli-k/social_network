@@ -1,3 +1,9 @@
+import sys
+
+sys.path.append('../database')
+from database import *
+
+
 class Person:
     _id = 1
     def __init__(self, name, surname, gender = "m", date_of_birth = "01.01.2000.", skills = [], hobbies = [], id = None):
@@ -40,3 +46,17 @@ class Person:
 
     def db_create(self):
         return "CREATE( " + str(self) + ");"
+
+    def get_bussiness_recommendation(self, path = "../database/database.cfg", limit = 10):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {id: $id})-[:ATTENDED]->(:College)-[:SAME_AREA]-(c:College)<-[:ATTENDED]-(recommendation:Person) \
+                                WHERE p.id <> recommendation.id RETURN recommendation, c.name, size([x IN p.skills WHERE x IN recommendation.skills]) AS \
+                                common_skills ORDER BY common_skills DESC LIMIT $limit;", {"id": self.id, "limit": limit})
+            
+            bussiness_recommendation = []
+            for recommend in result.data():
+                rec = recommend["recommendation"]
+                bussiness_recommendation.append((Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]), recommend["c.name"] ))
+            
+        return bussiness_recommendation

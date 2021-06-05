@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import sys
-sys.path.insert(1, '../entities')
-sys.path.insert(2, '../database')
+sys.path.append('../entities')
+sys.path.append('../database')
 
 from database import *
 

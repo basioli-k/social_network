@@ -1,11 +1,6 @@
 from neo4j import GraphDatabase
 from neo4j.exceptions import Neo4jError
-import shutil, os, sys, configparser
-
-sys.path.insert(1, '../entities')
-
-from college import *
-from person import *
+import shutil, os, configparser
 
 def add_attribute(header_element):
     integer_values = ["id", "person_id", "college_id", "enrollment_year", "graduate_year", "grade", "id_first", "id_second", "id_first_college", "id_second_college"]

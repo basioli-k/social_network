@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-sys.path.insert(1, '../entities')
+sys.path.append('../entities')
 
 from college import *
 from person import *
