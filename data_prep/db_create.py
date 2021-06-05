@@ -5,6 +5,7 @@ sys.path.insert(1, '../entities')
 
 from college import *
 from person import *
+from itertools import combinations
 import random
 import datetime
 import pandas as pd
@@ -116,6 +117,13 @@ def create_attendence(people, colleges):
         s += "MATCH (p" + str(person) + ")\n"
         s += "SET p.skills = \'" + str(person.skills) + "\';"
 
+def same_area(colleges):
+    for combination in combinations(colleges, 2):
+        if combination[0].area == combination[1].area:
+            print_to_file("../database/same_area.csv", "id_first_college,id_second_college",f"{combination[0].id},{combination[1].id}" )
+        
+
+
 if __name__ == "__main__":
     import configparser, json
 
@@ -150,4 +158,6 @@ if __name__ == "__main__":
     delete_file("../database/college.csv")
     for college in colleges:
         print_to_file("../database/college.csv", College.csv_header(), college.csv_format())
+
+    same_area(colleges)
         

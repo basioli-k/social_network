@@ -8,7 +8,7 @@ from college import *
 from person import *
 
 def add_attribute(header_element):
-    integer_values = ["id", "person_id", "college_id", "enrollment_year", "graduate_year", "grade", "id_first", "id_second"]
+    integer_values = ["id", "person_id", "college_id", "enrollment_year", "graduate_year", "grade", "id_first", "id_second", "id_first_college", "id_second_college"]
     date_values = ["date_of_birth", "start_date"]
     array_values = ["skills", "hobbies"]
 
@@ -77,8 +77,15 @@ class Database:
         header = header.split(",")
         header_rest = header[2:]
 
-        cypher = f"USING PERIODIC COMMIT 500 LOAD CSV WITH HEADERS FROM \"file:///{file_name}\" AS csv_line MATCH (p:Person " + "{id:toInteger(csv_line." + f"{header[0]}" + ")}), (q:"
+        cypher = f"USING PERIODIC COMMIT 500 LOAD CSV WITH HEADERS FROM \"file:///{file_name}\" AS csv_line MATCH" 
         
+        if "college" in header[0]: 
+            cypher += "(p:College "
+        else:
+            cypher += "(p:Person "
+        
+        cypher += "{id:toInteger(csv_line." + f"{header[0]}" + ")}), (q:"
+
         if "college" in header[1]:
             cypher += "College {id:toInteger(csv_line."
         else:
