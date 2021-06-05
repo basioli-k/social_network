@@ -6,6 +6,7 @@ sys.path.append('../entities')
 from college import *
 from person import *
 from itertools import combinations
+from scipy.stats import truncnorm
 import random
 import datetime
 import pandas as pd
@@ -19,20 +20,35 @@ MIN_BIRTH_YEAR = 1980
 MAX_BIRTH_YEAR = 2000
 MAX_YEAR = 2020
 
-MIN_HOBBIES = 3
-MAX_HOBBIES = 8
+MEAN_HOBBIES = 7
+SD_HOBBIES = 2
+MIN_HOBBIES = 4
+MAX_HOBBIES = 10
 
+MEAN_FRIENDS = 10
+SD_FRIENDS = 4
 MIN_FRIENDS = 0
 MAX_FRIENDS = 20
 
+MEAN_SKILLS = 2
+SD_SKILLS = 1
 MIN_SKILLS = 0
 MAX_SKILLS = 5
-MIN_COLLEGE_SKILLS = 3
-MAX_COLLEGE_SKILLS = 8
+
+MEAN_COLLEGE_SKILLS = 7
+SD_COLLEGE_SKILLS = 2
+MIN_COLLEGE_SKILLS = 4
+MAX_COLLEGE_SKILLS = 10
+
+SD_GRADE = 1.5
 
 POPULATION = 200
 
 COLLEGE_ATTENDECE = 0.9
+
+def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
+    return truncnorm(
+        (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
 
 def delete_file(path):
     if os.path.exists(path):
@@ -56,16 +72,18 @@ def generate_person():
     gender = name_and_gender.iloc[0,1]
     name = name_and_gender.iloc[0,0].capitalize()
     surname = random.choice(surnames)
+    normalSkills = get_truncated_normal(mean=MEAN_SKILLS, sd=SD_SKILLS, low=MIN_SKILLS, upp=MAX_SKILLS)
+    normalHobbies = get_truncated_normal(mean=MEAN_HOBBIES, sd=SD_HOBBIES, low=MIN_HOBBIES, upp=MAX_HOBBIES)
     date_of_birth = datetime.date(random.randint(MIN_BIRTH_YEAR,MAX_BIRTH_YEAR),random.randint(1,12),random.randint(1,28))
-    skills = random.sample(all_skills,random.randint(MIN_SKILLS,MAX_SKILLS))
-    hobbies = random.sample(hobbies_data,random.randint(MIN_HOBBIES,MAX_HOBBIES))
+    skills = random.sample(all_skills,int(normalSkills.rvs()))
+    hobbies = random.sample(hobbies_data,int(normalHobbies.rvs()))
     return Person(name, surname, gender, date_of_birth, skills, hobbies)
 
 def generate_people(n):
     people=[]
     start = time.time()
     end = time.time()
-    while( len(people) <= n and end - start <= MAX_GENERATING_TIME ):
+    while( len(people) < n and end - start <= MAX_GENERATING_TIME ):
         people.append(generate_person())
         people = list(set(people))
         end = time.time()
@@ -85,9 +103,10 @@ def db_create_friendship(person1, person2):
 
 def create_friendships(people):
     s = ""
+    normalFriends = get_truncated_normal(mean=MEAN_FRIENDS, sd=SD_FRIENDS, low=MIN_FRIENDS, upp=MAX_FRIENDS)
     delete_file("../database/friendships.csv")
     for person in people:
-        friends = random.sample(people,random.randint(MIN_FRIENDS,MAX_FRIENDS))
+        friends = random.sample(people, int(normalFriends.rvs()))
         for friend in friends:
             if(person is not friend):
                 s += db_create_friendship(person, friend) + "\n"
@@ -96,7 +115,8 @@ def create_friendships(people):
 def db_create_attendence(person, college):
     enrollment_year = random.randint(person.date_of_birth.year + 18,2020)
     graduate_year = enrollment_year + random.randint(5,10)
-    grade = random.randint(2,5)
+    normalGrade = get_truncated_normal(mean= len(person.skills)/3.5 ,sd= SD_GRADE , low=2, upp=5)
+    grade = round(normalGrade.rvs(), 2)
 
     print_to_file("../database/attendance.csv", "person_id,college_id,enrollment_year,graduate_year,grade", f"{person.id},{college.id},{enrollment_year},{graduate_year},{grade}")
 
