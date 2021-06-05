@@ -1,12 +1,14 @@
 import sys
+import datetime
 
 sys.path.append('../database')
 from database import *
 
+OLD_LIMIT = 26
 
 class Person:
     _id = 1
-    def __init__(self, name, surname, gender = "m", date_of_birth = "01.01.2000.", skills = [], hobbies = [], id = None):
+    def __init__(self, name, surname, gender = "m", date_of_birth = datetime.date(1980, 1, 1), skills = [], hobbies = [], id = None):
         self.name =  name
         self.surname = surname
         self.gender = gender
@@ -47,16 +49,113 @@ class Person:
     def db_create(self):
         return "CREATE( " + str(self) + ");"
 
-    def get_bussiness_recommendation(self, path = "../database/database.cfg", limit = 10):
+    
+    #daje nam ljude iz istog podrucja, za starije korisnike suzi po skillovima prvo pa po godini rodenja, za mlade radi obrnuto
+    def get_business_recommendation(self, path = "../database/database.cfg", limit = 10):
+        first_limit = 2 * limit
+
+        cypher = "MATCH (p:Person {id: $id})-[:ATTENDED]->(:College)-[:SAME_AREA]-(:College)<-[:ATTENDED]-(recommendation:Person) \
+                WHERE p.id <> recommendation.id AND NOT((p)-[:IS_FRIEND]-(recommendation))"
+
+        if datetime.date.today().year - self.date_of_birth.year > OLD_LIMIT:
+            cypher += " WITH p, recommendation, size([x IN p.skills WHERE x IN recommendation.skills]) AS common_skills ORDER BY common_skills DESC LIMIT $first_limit"
+            cypher += " RETURN recommendation, abs(p.date_of_birth.year - recommendation.date_of_birth.year) AS birth_delta ORDER BY birth_delta DESC LIMIT $limit;"
+        else:
+            cypher += " WITH p, recommendation, abs(p.date_of_birth.year - recommendation.date_of_birth.year) AS birth_delta ORDER BY birth_delta DESC LIMIT $first_limit"
+            cypher += " RETURN recommendation, size([x IN p.skills WHERE x IN recommendation.skills]) AS common_skills ORDER BY common_skills DESC LIMIT $limit;"
+
         db = Database.get_instance(path)
         with db.driver.session() as session:
-            result = session.run("MATCH (p:Person {id: $id})-[:ATTENDED]->(:College)-[:SAME_AREA]-(c:College)<-[:ATTENDED]-(recommendation:Person) \
-                                WHERE p.id <> recommendation.id RETURN recommendation, c.name, size([x IN p.skills WHERE x IN recommendation.skills]) AS \
-                                common_skills ORDER BY common_skills DESC LIMIT $limit;", {"id": self.id, "limit": limit})
+            result = session.run(cypher, {"id": self.id, "first_limit": first_limit, "limit": limit})
             
             bussiness_recommendation = []
             for recommend in result.data():
                 rec = recommend["recommendation"]
-                bussiness_recommendation.append((Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]), recommend["c.name"] ))
-            
+                bussiness_recommendation.append(Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]) )
+        
+        db.close()
+        
         return bussiness_recommendation
+    
+    def get_personal_recommendation(self, path = "../database/database.cfg", limit = 10):
+        first_limit = 3 * limit
+        second_limit = 2 * limit
+        # find first_limit people with most common friends
+        cypher = "MATCH (p:Person {id:$id})-[:IS_FRIEND]-(:Person)-[:IS_FRIEND]-(recommendation:Person) \
+                WHERE p.id <> recommendation.id AND NOT((p)-[:IS_FRIEND]-(recommendation)) \
+                WITH p, recommendation, count(recommendation) AS common_friends ORDER BY common_friends DESC LIMIT $first_limit"
+        #out of those choose second_limit people who are the closest by year of birth
+        cypher += " WITH p, recommendation, abs(recommendation.date_of_birth.year - p.date_of_birth.year) AS birth_delta ORDER BY birth_delta LIMIT $second_limit"
+        # out of those choose limit people who have the biggest intersection in skills and hobbies
+        cypher += " RETURN recommendation, size([skill IN p.skills WHERE skill IN recommendation.skills]) + \
+                size([hobby IN p.hobbies WHERE hobby IN recommendation.hobbies]) AS common ORDER BY common DESC LIMIT $limit;"
+
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run(cypher, {"id": self.id, "first_limit": first_limit, "second_limit": second_limit, "limit": limit})
+
+            personal_recommendation = []
+            for recommend in result.data():
+                rec = recommend["recommendation"]
+                personal_recommendation.append( Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]) )
+        
+        db.close()
+
+        return personal_recommendation
+        
+    #POKOJNE IDEJE
+    # #mozemo podesiti da ova funkcija bude pozvana za mlade ljude (jer zelimo da mladi ljudi budu povezani sa mladima), treba adjustati weightove
+    # def get_business_recommendation_younger(self, path = "../database/database.cfg", limit = 10):
+    #     w1, w2, w3 = (1, 1, 1)  #mozemo setati neke weightove ako zelimo, jer na ovaj nacin gledamo neki relativno mali broj + mali broj + broj zaj skillova
+    #     db = Database.get_instance(path)
+
+    #     with db.driver.session() as session:
+    #         result = session.run("MATCH (p:Person {id:$id})-[att1:ATTENDED]->(:College)-[:SAME_AREA]-(c:College)<-[att2:ATTENDED]-(recommendation:Person) WHERE p.id <> recommendation.id AND \
+    #                             NOT((p)-[:IS_FRIEND]-(recommendation)) RETURN recommendation, c.name, sqrt($w1/(abs(p.date_of_birth.year - recommendation.date_of_birth.year)+1)^2  +\
+    #                             $w2/(abs(att1.enrollment_year-att2.enrollment_year)+1)^2 + $w3*size([x IN p.skills WHERE x IN recommendation.skills])^2) \
+    #                             AS rating ORDER BY rating DESC LIMIT $limit;", {"id": self.id, "limit": limit, "w1": w1, "w2": w2, "w3": w3})
+
+    #         bussiness_recommendation = []
+    #         for recommend in result.data():
+    #             rec = recommend["recommendation"]
+    #             bussiness_recommendation.append((Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]), recommend["c.name"] ))
+        
+    #     db.close()
+        
+    #     return bussiness_recommendation
+
+    #vraca broj ljudi s najvecim presjekom skillova i hobija
+    # def get_personal_recommendation(self, path = "../database/database.cfg", limit = 10):
+    #     db = Database.get_instance(path)
+
+    #     with db.driver.session() as session:
+    #         result = session.run("MATCH (p:Person {id:$id})-[:IS_FRIEND]-(:Person)-[:IS_FRIEND]-(recommendation:Person) WHERE p.id <> recommendation.id AND NOT((p)-[:IS_FRIEND]-(recommendation)) \
+    #                             RETURN recommendation, (size([x IN p.skills WHERE x IN recommendation.skills]) + size([x IN p.hobbies WHERE x IN recommendation.hobbies])) AS common ORDER BY common DESC LIMIT $limit;", 
+    #                             {"id": self.id, "limit": limit})
+    #         personal_recommendation = []
+    #         for recommend in result.data():
+    #             rec = recommend["recommendation"]
+    #             personal_recommendation.append( Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]) )
+        
+    #     db.close()
+
+    #     return personal_recommendation
+
+    #preporuka po zajednickim prijateljima
+    # def get_personal_recommendation_2(self, path = "../database/database.cfg", limit = 10):
+    #     db = Database.get_instance(path)
+
+    #     with db.driver.session() as session:
+    #         result = session.run("MATCH (p:Person {id:$id})-[:IS_FRIEND]-(:Person)-[:IS_FRIEND]-(recommendation:Person) WHERE p.id <> recommendation.id \
+    #                             AND NOT((p)-[:IS_FRIEND]-(recommendation)) return recommendation, count(recommendation) AS common_friends ORDER BY \
+    #                             common_friends DESC LIMIT $limit;", 
+    #                             {"id": self.id, "limit": limit})
+
+    #         personal_recommendation = []
+    #         for recommend in result.data():
+    #             rec = recommend["recommendation"]
+    #             personal_recommendation.append( Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]) )
+        
+    #     db.close()
+
+    #     return personal_recommendation
