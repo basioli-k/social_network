@@ -16,9 +16,9 @@ import os.path
 
 MAX_GENERATING_TIME = 5
 
-MIN_BIRTH_YEAR = 1980
-MAX_BIRTH_YEAR = 2000
-MAX_YEAR = 2020
+MIN_BIRTH_DATE = datetime.date(1980, 1, 1)
+MAX_BIRTH_DATE = datetime.date(2000, 1, 1)
+MAX_DATE = datetime.date.today()
 
 MEAN_HOBBIES = 7
 SD_HOBBIES = 2
@@ -48,6 +48,13 @@ def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
     return truncnorm(
         (low - mean) / sd, (upp - mean) / sd, loc=mean, scale=sd)
 
+def random_date( start_date, end_date):
+    time_between_dates = end_date - start_date
+    days_between_dates = time_between_dates.days
+    random_number_of_days = random.randrange(days_between_dates)
+    random_date = start_date + datetime.timedelta(days=random_number_of_days)
+    return random_date
+
 def delete_file(path):
     if os.path.exists(path):
         os.remove(path)
@@ -72,7 +79,7 @@ def generate_person():
     surname = random.choice(surnames)
     normalSkills = get_truncated_normal(mean=MEAN_SKILLS, sd=SD_SKILLS, low=MIN_SKILLS, upp=MAX_SKILLS)
     normalHobbies = get_truncated_normal(mean=MEAN_HOBBIES, sd=SD_HOBBIES, low=MIN_HOBBIES, upp=MAX_HOBBIES)
-    date_of_birth = datetime.date(random.randint(MIN_BIRTH_YEAR,MAX_BIRTH_YEAR),random.randint(1,12),random.randint(1,28))
+    date_of_birth = random_date(MIN_BIRTH_DATE, MAX_BIRTH_DATE)
     skills = random.sample(all_skills,int(normalSkills.rvs()))
     hobbies = random.sample(hobbies_data,int(normalHobbies.rvs()))
     return Person(name, surname, gender, date_of_birth, skills, hobbies)
@@ -88,10 +95,10 @@ def generate_people(n):
     return people
 
 def db_create_friendship(person1, person2):
-    year = max(person1.date_of_birth.year,person2.date_of_birth.year) +18
-    if( year > 2020):
+    date = max(person1.date_of_birth,person2.date_of_birth) + datetime.timedelta(days=18 * 365)
+    if( date > MAX_DATE):
         return
-    start_date = datetime.date(random.randint(year,MAX_YEAR),random.randint(1,12),random.randint(1,28))
+    start_date = random_date( date, MAX_DATE)
 
     print_to_file("../database/friendships.csv", "id_first,id_second,start_date", f"{person1.id},{person2.id},{start_date}")
 
@@ -111,7 +118,7 @@ def create_friendships(people):
     return s
 
 def db_create_attendence(person, college):
-    enrollment_year = random.randint(person.date_of_birth.year + 18,2020)
+    enrollment_year = random.randint(person.date_of_birth.year + 18, MAX_DATE.year)
     graduate_year = enrollment_year + random.randint(5,10)
     normalGrade = get_truncated_normal(mean= len(person.skills)/3.5 ,sd= SD_GRADE , low=2, upp=5)
     grade = round(normalGrade.rvs(), 2)
@@ -120,7 +127,7 @@ def db_create_attendence(person, college):
 
     s = "MATCH (p" + str(person) + "), (s" + str(college) + ")\n"
     s += "CREATE (p)-[:ATTENDED {enrollment_year: \'" + str(enrollment_year) + "\', "
-    if graduate_year < 2020:
+    if graduate_year < MAX_DATE.year:
         s += "graduate_year: \'" + str(graduate_year) + "\', "
     s += "grade: \'" + str(grade) + "\'}]->(s);"
     return s
@@ -167,7 +174,7 @@ if __name__ == "__main__":
 
     people = generate_people(POPULATION)
 
-    create_attendence(people, colleges)
+    #create_attendence(people, colleges)
     create_friendships(people)  
 
     delete_file("../database/people.csv")
