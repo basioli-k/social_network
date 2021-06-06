@@ -68,8 +68,7 @@ class Database:
     def load_csv_entities(self, entity):
         cypher = self.get_load_command_entity(entity["file_name"], entity["header"], entity["entity"])
         with self.driver.session() as session:
-            result = session.run(cypher)
-            print(result)
+            session.run(cypher)
     
     def get_load_command_relation(self, file_name, header, relation):
         header = header.split(",")
@@ -119,31 +118,28 @@ class Database:
                 print(ce.message)
 
 
-if __name__ == "__main__":
+def fill_database(path = "database.cfg"):
     import json
 
     config = configparser.ConfigParser()
 
-    config.read("database.cfg", encoding='utf-8')
-    db_url = config["database"]["url"] 
-    username = config["database"]["username"]
-    password = config["database"]["password"]
+    config.read(path, encoding='utf-8')
   
 
     import_path = config["database"]["import_path"]   #todo generalizacija onog patha u configu
     entity_info = json.loads(config["database"]["entity_info"])
     relationship_info = json.loads(config["database"]["relationship_info"])
 
-    db = Database.get_instance()
+    db = Database.get_instance(path)
 
     db.delete_database()
 
-    for filename in os.listdir():
+    for filename in os.listdir("./database"):
         if filename.endswith(".csv"):
             if os.path.exists(f'{import_path}/{filename}'):
                 os.remove(f'{import_path}/{filename}')
             #shutil.copyfile(filename, import_path)      #ovo treba pristup iz nekog razloga?
-            shutil.move(filename, import_path)
+            shutil.move("./database/" + filename, import_path)
 
     for entity in entity_info:
         try:
@@ -168,3 +164,6 @@ if __name__ == "__main__":
             print(ce.message)
 
     db.close()
+
+if __name__ == "__main__":
+    fill_database()
