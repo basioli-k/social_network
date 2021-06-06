@@ -234,11 +234,11 @@ class Person:
                                                 per["friend"]["skills"], per["friend"]["hobbies"]) )                            
                 return friends_list                 
                                  
-    def get_friends_by_name(self, name, path = "../database/database.cfg"):
+    def get_friends_by_sur_name(self, value = "", key = "" , path = "../database/database.cfg"):
         db = Database.get_instance(path)
         with db.driver.session() as session:
-            result = session.run("MATCH (p:Person {name: $name, surname: $surname})--(friend:Person {name: $name_friend}) RETURN friend;", 
-                                 {"name" : self.name, "surname" : self.surname, "name_friend" : name})
+            result = session.run(f"MATCH (p:Person {{name: $name, surname: $surname}})-[:IS_FRIEND]-(friend:Person {{ {key}: $value}}) RETURN friend;", 
+                                 {"name" : self.name, "surname" : self.surname, "value" : value})
             friends_list = []
             if not result:
                 return None
@@ -247,13 +247,56 @@ class Person:
                     friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
                                                 per["friend"]["gender"], per["friend"]["date_of_birth"], 
                                                 per["friend"]["skills"], per["friend"]["hobbies"]) )                            
-                return friends_list                              
+                db.close()
+                return friends_list  
+                            
+    def get_friends_by_birthyear(self, year, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run(f"MATCH (p:Person {{name: $name, surname: $surname}})-[:IS_FRIEND]-(friend:Person) WHERE friend.date_of_birth.year = $value RETURN friend;", 
+                                 {"name" : self.name, "surname" : self.surname, "value" : year})
+            friends_list = []
+            if not result:
+                return None
+            else:
+                for per in result.data():
+                    friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
+                                                per["friend"]["gender"], per["friend"]["date_of_birth"], 
+                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                db.close()
+                return friends_list
+
+    def get_friends_by_college_info(self, value = "", key = "" , path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run(f"MATCH (p:Person {{name: $name, surname: $surname}})-[:IS_FRIEND]-(friend:Person)-[a:ATTENDED {{ {key} : $value}}]-(c:COLLEGE) RETURN friend;", 
+                                 {"name" : self.name, "surname" : self.surname, "value" : value})
+            friends_list = []
+            if not result:
+                return None
+            else:
+                for per in result.data():
+                    friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
+                                                per["friend"]["gender"], per["friend"]["date_of_birth"], 
+                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                db.close()
+                return friends_list                            
                                  
-                                 
-                                 
-                                 
-                                 
-                                 
+    def get_friends_by_college(self, college, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[:IS_FRIEND]-(friend:Person)-[:ATTENDED]-(c:College { short_name: $value}) RETURN friend;", 
+                                 {"name" : self.name, "surname" : self.surname, "value" : college})
+            friends_list = []
+            if not result:
+                return None
+            else:
+                for per in result.data():
+                    friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
+                                                per["friend"]["gender"], per["friend"]["date_of_birth"], 
+                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                db.close()
+                return friends_list                             
                                  
                                  
                                  

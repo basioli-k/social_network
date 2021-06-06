@@ -923,6 +923,7 @@ def college_screen_delete():
     college_screen.destroy()
   
 def search_like():
+    global search_entry_value
     search_entry_value = StringVar(screen_friends)
     if keyword.get() != "all":
         Label(left_frame, text="Keyword:",
@@ -938,43 +939,46 @@ def search_like():
            command=lambda word = search_entry_value: search(word)).pack(side=RIGHT)
     
 def search(word):    
-    #switch case
+    word = str(word.get())
     if keyword.get() == "all":
             friends = user.get_all_friends()
     elif keyword.get() == "name":
-            friends = user.get_friends_by_name(word)
+            friends = user.get_friends_by_sur_name(value = word, key = "name")
     elif keyword.get() == "surname":
-            friends = user.get_all_friends()    
+            friends = user.get_friends_by_sur_name(value = word, key = "surname")
     elif keyword.get() == "year":
-            friends = user.get_all_friends()    
-    elif keyword.get() == "college":
-            friends = user.get_all_friends()
+            friends = user.get_friends_by_birthyear(int(word))    
+    elif keyword.get() == "college": #MORA UNIJETI KRAKTO IME
+            friends = user.get_friends_by_college(word)
     elif keyword.get() == "gy":
-            friends = user.get_all_friends()
+            friends = user.get_friends_by_college_info(value = int(word), key = "graduate_year")
     else:
-        friends = user.get_all_friends()        
+        friends = user.get_friends_by_college_info(value = int(word), key = "enrollment_year")
     right_frame = Frame(screen_friends, bg='#acc4d7')
     right_frame.pack(side=RIGHT,padx=10)
-    frame = ScrollableFrame(right_frame)
-    for f in friends:
-        ff = Frame(frame.scrollable_frame, bg="#acc4d7")
-        ff.pack(pady=15)
-        Label(ff, text=f.name+" "+f.surname,
+    if not friends:
+        Label(right_frame, text="No matches found in database",
               width=20,bg="#acc4d7",
-              font=("Times", 10)
-              ).pack(side=LEFT)
-        Button(ff, text="See more",
-               bg="#547fa3", height=1, width=10,
-               command=add_friend_frec).pack(side=RIGHT)
-        Button(ff, text="Add",
-               bg="#547fa3", height=1, width=5,
-               command=add_friend_frec).pack(side=RIGHT)
-    frame.pack(pady=10)
+              font=("Times", 15, "bold")
+              ).pack(side=LEFT)        
+    else:
+        frame = ScrollableFrame(right_frame)
+        for f in friends:
+            ff = Frame(frame.scrollable_frame, bg="#acc4d7")
+            ff.pack(pady=15)
+            Label(ff, text=f.name+" "+f.surname,
+                  width=20,bg="#acc4d7",
+                  font=("Times", 10)
+                  ).pack(side=LEFT)
+            Button(ff, text="See more",
+                   bg="#547fa3", height=1, width=10,
+                   command=lambda person=f, screen=screen_friends: person_info(person, screen)).pack(side=RIGHT)
+            Button(ff, text="Add",
+                   bg="#547fa3", height=1, width=5,
+                   command=add_friend_frec).pack(side=RIGHT)
+            frame.pack(pady=10)
+
     
-def add_friend_frec():
-    #tu dodat da se gumb disablea s config kada se doda
-    #u listi je pa se makne (vidi web)
-    print("a")    
 def add_friend_brec():
     #tu dodat da se gumb disablea s config kada se doda
     #u listi je pa se makne (vidi web)
@@ -1164,6 +1168,97 @@ def person_info_frec(rec_person):
            bg="#547fa3", height=2, width=10,
            command=person_screen_delete).pack(pady=30)
     
+def person_info(rec_person, screen):
+    global person_screen
+    person_screen = Toplevel(screen)
+    person_screen.title("Person info")
+    person_screen.geometry("550x500")
+    person_screen.configure(bg='#d47474')
+    Label(person_screen, 
+          text="More information about person:  (resize window if needed)", 
+          font=("Times", 15, "bold"),
+          bg='#d47474').pack(pady=10)
+    frame_g = Frame(person_screen, bg="#d47474")
+    frame_g.pack(side=TOP)
+    Label(frame_g, 
+          text="Gender: ", 
+          font=("Times", 13, "bold"),
+          bg='#d47474').pack(side=LEFT)
+    Label(frame_g, 
+          text=rec_person.gender, 
+          font=("Times", 13),
+          bg='#d47474').pack(side=RIGHT)
+    frame_d = Frame(person_screen, bg="#d47474")
+    frame_d.pack(side=TOP)
+    Label(frame_d, 
+          text="Date of birth: ", 
+          font=("Times", 13, "bold"),
+          bg='#d47474').pack(side=LEFT)
+    Label(frame_d, 
+          text=rec_person.date_of_birth, 
+          font=("Times", 13),
+          bg='#d47474').pack(side=RIGHT)
+    frame_c = Frame(person_screen, bg="#d47474")
+    frame_c.pack(side=TOP)
+    Label(frame_c, 
+          text="College: ", 
+          font=("Times", 13, "bold"),
+          bg='#d47474').pack(side=LEFT)
+    Label(frame_c, 
+          text=rec_person.get_college().short_name, 
+          font=("Times", 13),
+          bg='#d47474').pack(side=RIGHT)
+    frame_bottom = Frame(person_screen, bg="#d47474")
+    frame_bottom.pack(side=TOP, pady = 10)
+    #college info part
+    f_college_info = Frame(frame_bottom, bg="#d47474")
+    f_college_info.pack(side=LEFT)
+    Label(f_college_info, 
+          text="More college info: ", 
+          font=("Times", 12, "bold"),
+          bg='#d47474').pack(side=TOP)
+    Label(f_college_info, 
+          text="Enrollment year: " + str(rec_person.get_college_enroll()), 
+          font=("Times", 12),
+          bg='#d47474').pack(side=TOP)
+    Label(f_college_info, 
+          text="Graduate year: " + str(rec_person.get_college_graduate()), 
+          font=("Times", 12),
+          bg='#d47474').pack(side=TOP)
+    Label(f_college_info, 
+          text="Grade: " + str(rec_person.get_college_grade()), 
+          font=("Times", 12),
+          bg='#d47474').pack(side=TOP)
+    #skills part
+    f_skills = Frame(frame_bottom, bg="#d47474")
+    f_skills.pack(side=LEFT)
+    Label(f_skills, 
+              text="Skills: ", 
+              font=("Times", 12, "bold"),
+              bg='#d47474').pack(side=TOP)
+    list_skills = rec_person.skills
+    for s in list_skills:
+        Label(f_skills, 
+              text=s, 
+              font=("Times", 12),
+              bg='#d47474').pack(side=TOP)
+    #hobbies part
+    f_hobbies = Frame(frame_bottom, bg="#d47474")
+    f_hobbies.pack(side=LEFT)
+    Label(f_hobbies, 
+              text="Hobbies: ", 
+              font=("Times", 12, "bold"),
+              bg='#d47474').pack(side=TOP)
+    list_hobbies = rec_person.hobbies
+    for h in list_hobbies:
+        Label(f_hobbies, 
+              text=h, 
+              font=("Times", 12),
+              bg='#d47474').pack(side=TOP)
+        
+    Button(person_screen, text="Hide",
+           bg="#547fa3", height=2, width=10,
+           command=person_screen_delete).pack(pady=30)    
 def person_screen_delete():
     person_screen.destroy()    
     
