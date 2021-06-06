@@ -103,6 +103,12 @@ class Person:
         db.close()
 
         return personal_recommendation
+    
+    @staticmethod
+    def get_max_id(path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            return session.run("MATCH (p:Person) RETURN MAX(p.id) as max_id;").single()["max_id"]
         
     #POKOJNE IDEJE
     # #mozemo podesiti da ova funkcija bude pozvana za mlade ljude (jer zelimo da mladi ljudi budu povezani sa mladima), treba adjustati weightove

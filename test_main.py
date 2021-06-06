@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # for person in person.get_personal_recommendation_2("./database/database.cfg"):
     #     print(str(person))
 
-    print(person.get_attendance_info("./database/database.cfg"))
+    print(Person.get_max_id("./database/database.cfg"))
 
     #print(len(set(person.get_personal_recommendation("./database/database.cfg")) & set(person.get_personal_recommendation_2("./database/database.cfg") ) ))
 
