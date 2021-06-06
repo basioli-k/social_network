@@ -13,14 +13,6 @@ from db_create import *
 
 if __name__ == "__main__":
 
-    for i in range(50, 1050, 50):
-        POPULATION = i
-        generate_data("./data_prep/data.cfg", "./data_prep/names-by-gender.csv", POPULATION)
-        fill_database("./database/database.cfg")
-        for i in range(10): # za 10 razlicitih ljudi ovo ucini
-            person = Person("K", "b", id=random.randint(1, POPULATION))
-            t = person.get_personal_recommendation("./database/database.cfg")
-            print_to_file("./analysis/personal.csv", "population,time",f"{POPULATION},{t}")
+    person = Person("k","b","m", id= 134)
 
-            t = person.get_business_recommendation("./database/database.cfg") 
-            print_to_file("./analysis/business.csv", "population,time",f"{POPULATION},{t}")
+    print(person.get_attendance_info("./database/database.cfg"))

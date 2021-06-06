@@ -18,9 +18,9 @@ class Person:
         self.hobbies = hobbies
         if id == None:
             self.id = Person._id
+            Person._id += 1
         else:
             self.id = id
-        Person._id += 1          #na ovaj nacin je _id staticka varijabla
         
     def __str__(self):
         s = ":Person {"
