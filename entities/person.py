@@ -1,5 +1,6 @@
 import sys
 import datetime
+import time
 
 sys.path.append('../database')
 from database import *
@@ -66,6 +67,7 @@ class Person:
             cypher += " RETURN recommendation, size([x IN p.skills WHERE x IN recommendation.skills]) AS common_skills ORDER BY common_skills DESC LIMIT $limit;"
 
         db = Database.get_instance(path)
+        start = time.time()
         with db.driver.session() as session:
             result = session.run(cypher, {"id": self.id, "first_limit": first_limit, "limit": limit})
             
@@ -73,10 +75,10 @@ class Person:
             for recommend in result.data():
                 rec = recommend["recommendation"]
                 bussiness_recommendation.append(Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]) )
-        
+        end = time.time()
         db.close()
         
-        return bussiness_recommendation
+        return end-start
     
     def get_personal_recommendation(self, path = "../database/database.cfg", limit = 10):
         first_limit = 3 * limit
@@ -92,6 +94,7 @@ class Person:
                 size([hobby IN p.hobbies WHERE hobby IN recommendation.hobbies]) AS common ORDER BY common DESC LIMIT $limit;"
 
         db = Database.get_instance(path)
+        start = time.time()
         with db.driver.session() as session:
             result = session.run(cypher, {"id": self.id, "first_limit": first_limit, "second_limit": second_limit, "limit": limit})
 
@@ -99,10 +102,10 @@ class Person:
             for recommend in result.data():
                 rec = recommend["recommendation"]
                 personal_recommendation.append( Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]) )
-        
+        end = time.time()
         db.close()
 
-        return personal_recommendation
+        return end-start
     
     @staticmethod
     def get_max_id(path = "../database/database.cfg"):

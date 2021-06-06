@@ -100,15 +100,16 @@ def db_create_friendship(person1, person2):
 
     print_to_file("./database/friendships.csv", "id_first,id_second,start_date", f"{person1.id},{person2.id},{start_date}")
 
-def create_friendships(people):
+def create_friendships(pop, mean, people):
     delete_file("./database/friendships.csv")
     friendCombinations = list (combinations(people, 2))
     random.shuffle(friendCombinations)
-    for i in range(round(POPULATION * MEAN_FRIENDS)):
-        if (i >= len(friendCombinations)):
-            break
+    print(pop, mean, len(friendCombinations))
+    num = round(pop * mean)
+    for i in range(num):
         combination = friendCombinations[i]
         db_create_friendship(combination[0], combination[1])
+    return num
 
 def db_create_attendence(person, college):
     enrollment_year = random.randint(person.date_of_birth.year + 18, MAX_DATE.year)
@@ -160,7 +161,7 @@ def generate_data(path = "data.cfg", path_to_names = "names-by-gender.csv", pop 
     people = generate_people(POPULATION, df_names, surnames, all_skills, hobbies_data)
 
     create_attendence(people, colleges)
-    create_friendships(people)  
+    fr = create_friendships(POPULATION, MEAN_FRIENDS, people)  
 
     delete_file("./database/people.csv")
     for person in people:
@@ -171,6 +172,7 @@ def generate_data(path = "data.cfg", path_to_names = "names-by-gender.csv", pop 
         print_to_file("./database/college.csv", College.csv_header(), college.csv_format())
 
     same_area(colleges)
+    return fr
 
 if __name__ == "__main__":
     generate_data()
