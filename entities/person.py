@@ -5,6 +5,7 @@ sys.path.append('../database')
 from database import *
 
 OLD_LIMIT = 26
+from college import *
 
 class Person:
     _id = 1
@@ -159,3 +160,86 @@ class Person:
     #     db.close()
 
     #     return personal_recommendation
+    
+    @staticmethod
+    def get_person_by_name_surname(user_name, user_surname, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname}) RETURN p;", 
+                                 {"name" : user_name, "surname" : user_surname})
+            if not result:
+                return None
+            else:
+                for per in result.data():
+                    return Person(per["p"]["name"], per["p"]["surname"], 
+                                  per["p"]["gender"], per["p"]["date_of_birth"], 
+                                  per["p"]["skills"], per["p"]["hobbies"])
+    
+    def get_college(self, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname})--(c:College) RETURN c;", 
+                                 {"name" : self.name, "surname" : self.surname})
+            if not result:
+                return None
+            else:
+                for coll in result.data():
+                    return College({"name" : coll["c"]["name"], 
+                                    "short_name" : coll["c"]["short_name"], 
+                                    "area" : coll["c"]["area"], "skills" : []})                          
+                                 
+    def get_college_enroll(self, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.enrollment_year", 
+                                 {"name" : self.name, "surname" : self.surname})
+            if not result:
+                return None
+            else:
+                for coll in result.data():                     
+                    return (coll["c.enrollment_year"])                          
+    def get_college_graduate(self, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.graduate_year", 
+                                 {"name" : self.name, "surname" : self.surname})
+            if not result:
+                return None
+            else:
+                for coll in result.data():                     
+                    return (coll["c.graduate_year"])                               
+    def get_college_grade(self, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.grade", 
+                                 {"name" : self.name, "surname" : self.surname})
+            if not result:
+                return None
+            else:
+                for coll in result.data():                     
+                    return (coll["c.grade"])                               
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 
+                                 	
