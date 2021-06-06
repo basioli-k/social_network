@@ -342,6 +342,21 @@ Rezultate upita moguće je vidjeti na grafičkom sučelju:
 \end{center}
 \end{samepage}
 
+\subsection{Brzina izvršavanja upita}
+Zanimljiva stvar koja je uočena prilikom stvaranja aplikacije je neovisnost trajanja upita o veličini baze. Odabrani su najsloženiji upiti, što su upravo upiti za preporučavanje prijatelja te se \emph{Pythonovom} bibliotekom \emph{time} mjerilo vrijeme izvršavanja svakog upita. \\
+Napravljeno je po deset baza za svaku od veličina iz skupa $\{50, 100, 150, \dots, 1000\}$ gdje elementi skupa predstavljaju broj osoba koji se nalaze u bazi podataka. Za svaku od tih baza upit je poslan za tri nasumično odabrana korisnika te su dobijeni sljedeći rezultati.\\
+
+\begin{center}
+    \includegraphics[scale=0.5]{slike/personal_graph.png}
+    \includegraphics[scale=0.5]{slike/business_graph.png}
+\end{center}
+
+
+Iznenađujuće vrijeme izvršavanja upita ostaje konstantno te traje nešto više od dvije sekunde. \\
+Iako na prvu ruku rezultat izgleda neočekivano razlog u tome nalazimo na naviku korištenja relacijskih baza podataka gdje bi za većinu ovakvih upita bilo potrebno raditi Kartezijev produkt tablica za što je prirodno očekivati da će rastom veličine tablice trebati puno više vremena. \\
+Međutim ovdje ne dolazi do Kartezijevog produkta već se pretraživanje odvija grafovskim algoritmima što daje veliko ubrzanje 
+
+
 \newpage
 \section{Zaključak}
 
