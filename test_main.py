@@ -7,7 +7,7 @@ from database import *
 from person import *
 
 if __name__ == "__main__":
-    person = Person("K", "b", id=134)
+    person = Person("K", "b", id=79)
 
     # first_rec = [data[0] for data in person.get_business_recommendation("./database/database.cfg")]
     
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # for person in person.get_personal_recommendation_2("./database/database.cfg"):
     #     print(str(person))
 
-    print(len(person.get_business_recommendation("./database/database.cfg")))
+    print(person.get_attendance_info("./database/database.cfg"))
 
     #print(len(set(person.get_personal_recommendation("./database/database.cfg")) & set(person.get_personal_recommendation_2("./database/database.cfg") ) ))
 

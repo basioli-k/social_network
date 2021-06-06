@@ -3,9 +3,10 @@ from neo4j.exceptions import Neo4jError
 import shutil, os, configparser
 
 def add_attribute(header_element):
-    integer_values = ["id", "person_id", "college_id", "enrollment_year", "graduate_year", "grade", "id_first", "id_second", "id_first_college", "id_second_college"]
+    integer_values = ["id", "person_id", "college_id", "enrollment_year", "graduate_year", "id_first", "id_second", "id_first_college", "id_second_college"]
     date_values = ["date_of_birth", "start_date"]
     array_values = ["skills", "hobbies"]
+    floating_values = ["grade"]
 
     if header_element in integer_values:
         return f"{header_element}: toInteger(csv_line.{header_element})"
@@ -13,6 +14,8 @@ def add_attribute(header_element):
         return f"{header_element}: date(csv_line.{header_element})"
     elif header_element in array_values:
         return f"{header_element}: split(csv_line.{header_element}, \":\")"
+    elif header_element in floating_values:
+        return f"{header_element}: toFloat(csv_line.{header_element})"
     return f"{header_element}: csv_line.{header_element}"
 
 
