@@ -18,9 +18,9 @@ class Person:
         self.hobbies = hobbies
         if id == None:
             self.id = Person._id
+            Person._id += 1
         else:
             self.id = id
-        Person._id += 1          #na ovaj nacin je _id staticka varijabla
         
     def __str__(self):
         s = ":Person {"
@@ -105,63 +105,12 @@ class Person:
             return self.get_business_recommendation(path, limit)
             
         return personal_recommendation
-        
-    #POKOJNE IDEJE
-    # #mozemo podesiti da ova funkcija bude pozvana za mlade ljude (jer zelimo da mladi ljudi budu povezani sa mladima), treba adjustati weightove
-    # def get_business_recommendation_younger(self, path = "../database/database.cfg", limit = 10):
-    #     w1, w2, w3 = (1, 1, 1)  #mozemo setati neke weightove ako zelimo, jer na ovaj nacin gledamo neki relativno mali broj + mali broj + broj zaj skillova
-    #     db = Database.get_instance(path)
-
-    #     with db.driver.session() as session:
-    #         result = session.run("MATCH (p:Person {id:$id})-[att1:ATTENDED]->(:College)-[:SAME_AREA]-(c:College)<-[att2:ATTENDED]-(recommendation:Person) WHERE p.id <> recommendation.id AND \
-    #                             NOT((p)-[:IS_FRIEND]-(recommendation)) RETURN recommendation, c.name, sqrt($w1/(abs(p.date_of_birth.year - recommendation.date_of_birth.year)+1)^2  +\
-    #                             $w2/(abs(att1.enrollment_year-att2.enrollment_year)+1)^2 + $w3*size([x IN p.skills WHERE x IN recommendation.skills])^2) \
-    #                             AS rating ORDER BY rating DESC LIMIT $limit;", {"id": self.id, "limit": limit, "w1": w1, "w2": w2, "w3": w3})
-
-    #         bussiness_recommendation = []
-    #         for recommend in result.data():
-    #             rec = recommend["recommendation"]
-    #             bussiness_recommendation.append((Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]), recommend["c.name"] ))
-        
-    #     db.close()
-        
-    #     return bussiness_recommendation
-
-    #vraca broj ljudi s najvecim presjekom skillova i hobija
-    # def get_personal_recommendation(self, path = "../database/database.cfg", limit = 10):
-    #     db = Database.get_instance(path)
-
-    #     with db.driver.session() as session:
-    #         result = session.run("MATCH (p:Person {id:$id})-[:IS_FRIEND]-(:Person)-[:IS_FRIEND]-(recommendation:Person) WHERE p.id <> recommendation.id AND NOT((p)-[:IS_FRIEND]-(recommendation)) \
-    #                             RETURN recommendation, (size([x IN p.skills WHERE x IN recommendation.skills]) + size([x IN p.hobbies WHERE x IN recommendation.hobbies])) AS common ORDER BY common DESC LIMIT $limit;", 
-    #                             {"id": self.id, "limit": limit})
-    #         personal_recommendation = []
-    #         for recommend in result.data():
-    #             rec = recommend["recommendation"]
-    #             personal_recommendation.append( Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]) )
-        
-    #     db.close()
-
-    #     return personal_recommendation
-
-    #preporuka po zajednickim prijateljima
-    # def get_personal_recommendation_2(self, path = "../database/database.cfg", limit = 10):
-    #     db = Database.get_instance(path)
-
-    #     with db.driver.session() as session:
-    #         result = session.run("MATCH (p:Person {id:$id})-[:IS_FRIEND]-(:Person)-[:IS_FRIEND]-(recommendation:Person) WHERE p.id <> recommendation.id \
-    #                             AND NOT((p)-[:IS_FRIEND]-(recommendation)) return recommendation, count(recommendation) AS common_friends ORDER BY \
-    #                             common_friends DESC LIMIT $limit;", 
-    #                             {"id": self.id, "limit": limit})
-
-    #         personal_recommendation = []
-    #         for recommend in result.data():
-    #             rec = recommend["recommendation"]
-    #             personal_recommendation.append( Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]) )
-        
-    #     db.close()
-
-    #     return personal_recommendation
+    
+    @staticmethod
+    def get_max_id(path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            return session.run("MATCH (p:Person) RETURN MAX(p.id) as max_id;").single()["max_id"]
     
     @staticmethod
     def get_max_id(path = "../database/database.cfg"):
@@ -194,38 +143,7 @@ class Person:
                 coll, att = result.single()
                 return (College({"name" : coll["name"], "short_name" : coll["short_name"], 
                                 "area" : coll["area"], "skills" : coll["skills"]}),
-                        att["enrollment_year"], att["graduate_year"], att["grade"])                          
-                                 
-    # def get_college_enroll(self, path = "../database/database.cfg"):
-    #     db = Database.get_instance(path)
-    #     with db.driver.session() as session:
-    #         result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.enrollment_year", 
-    #                              {"name" : self.name, "surname" : self.surname})
-    #         if not result:
-    #             return None
-    #         else:
-    #             for coll in result.data():                     
-    #                 return (coll["c.enrollment_year"])                          
-    # def get_college_graduate(self, path = "../database/database.cfg"):
-    #     db = Database.get_instance(path)
-    #     with db.driver.session() as session:
-    #         result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.graduate_year", 
-    #                              {"name" : self.name, "surname" : self.surname})
-    #         if not result:
-    #             return None
-    #         else:
-    #             for coll in result.data():                     
-    #                 return (coll["c.graduate_year"])                               
-    # def get_college_grade(self, path = "../database/database.cfg"):
-    #     db = Database.get_instance(path)
-    #     with db.driver.session() as session:
-    #         result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.grade", 
-    #                              {"name" : self.name, "surname" : self.surname})
-    #         if not result:
-    #             return None
-    #         else:
-    #             for coll in result.data():                     
-    #                 return (coll["c.grade"])                               
+                        att["enrollment_year"], att["graduate_year"], att["grade"])                                                
                                  
     def get_all_friends(self, path = "../database/database.cfg"):
         db = Database.get_instance(path)
