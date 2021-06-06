@@ -219,10 +219,35 @@ class Person:
                 for coll in result.data():                     
                     return (coll["c.grade"])                               
                                  
+    def get_all_friends(self, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname})--(friend:Person) RETURN friend;", 
+                                 {"name" : self.name, "surname" : self.surname})
+            friends_list = []
+            if not result:
+                return None
+            else:
+                for per in result.data():
+                    friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
+                                                per["friend"]["gender"], per["friend"]["date_of_birth"], 
+                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                return friends_list                 
                                  
-                                 
-                                 
-                                 
+    def get_friends_by_name(self, name, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname})--(friend:Person {name: $name_friend}) RETURN friend;", 
+                                 {"name" : self.name, "surname" : self.surname, "name_friend" : name})
+            friends_list = []
+            if not result:
+                return None
+            else:
+                for per in result.data():
+                    friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
+                                                per["friend"]["gender"], per["friend"]["date_of_birth"], 
+                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                return friends_list                              
                                  
                                  
                                  

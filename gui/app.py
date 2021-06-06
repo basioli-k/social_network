@@ -17,7 +17,27 @@ import os
 from PIL import ImageTk, Image
 #from tkinter.ttk import *
 
+#helping
+class ScrollableFrame(Frame):
+    def __init__(self, container, *args, **kwargs):
+        super().__init__(container, *args, **kwargs)
+        canvas = Canvas(self)
+        scrollbar = Scrollbar(self, orient="vertical", command=canvas.yview)
+        self.scrollable_frame = Frame(canvas)
 
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
 #CONTROLLERS-----
 def login_ok():
@@ -468,7 +488,7 @@ def tab_friends():
                    "surname" : "surname",
                    "year of birth" : "year",
                    "college" : "college",
-                   "year graduating" : "yg",
+                   "graduating year" : "gy",
                    "enrollment year" : "ey"}
     style = ttk.Style(frame_radio)
     style.configure("TRadiobutton", background = "white",
@@ -537,39 +557,36 @@ def tab_brec():
            command=brec_to_lg,
            font=("Times", 13)
            ).pack(side=LEFT)  
-    #TODO - dohvacanje
-    preporuke = [["name", "surname", ["a","b","c"], ["a","b","c"]],
-                 ["name2", "surname2", ["a","b","c"], ["a","c"]],
-                 ["name3", "surname2", ["a","b","c"], ["a","c"]],
-                 ["name4", "surname2", ["a","b","c"], ["a","c"]],
-                 ["name5", "surname2", ["a","b","c"], ["a","c"]],
-                 ["name6", "surname2", ["a","b","c"], ["a","c"]]
-                 ]
     
-    #preporuke = []
-    if not preporuke:
+    global list_brec
+    list_brec = user.get_business_recommendation(limit=9)
+    
+    if not list_brec:
         Label(screen_brec, text="No recommendations now. Try again later!", 
           bg='#acc4d7', fg="black",
           width=200,
           font=("Times", 25, "bold")
           ).pack(side=TOP, pady=15)
-    #dodat nesto ako ih nije 6
-    #DODAT CU IH SVE RUCNO STO NIJE LIJEPO ALI ...
     else:
-        brojac = 0
-        for i in range(2):
+        nb = len(list_brec)
+        index = 0
+        for i in range(3):
             row = Frame(screen_brec, bg="#acc4d7")
             row.pack(side=TOP, padx=10, pady = 15)
+            if nb == 0:
+                break;
             for j in range(3):
+                if nb == 0:
+                    break;
                 person_card = Frame(row, bg="#d47474", borderwidth=1, relief=RAISED)
                 person_card.pack(side=LEFT, padx=5, pady=10)
                 #name
-                Label(person_card, text=preporuke[brojac][0], 
+                Label(person_card, text=list_brec[index].name, 
                       bg="#d47474", fg="black",
                       width=20,
                       font=("Times", 15, "bold")
                       ).pack(side=TOP,pady=5)
-                Label(person_card, text=preporuke[brojac][1], 
+                Label(person_card, text=list_brec[index].surname, 
                       bg="#d47474", fg="black",
                       width=20,
                       font=("Times", 15, "bold")
@@ -579,16 +596,17 @@ def tab_brec():
                 Button(f_buttons, fg="white",
                        text="See more",bg="#547fa3", 
                        height=1, width=8, 
-                       command=person_info,
+                       command=lambda person = list_brec[index] : person_info_brec(person),
                        font=("Times", 10)
                        ).pack(side=LEFT) 
                 Button(f_buttons, fg="white",
                        text="Add",bg="#547fa3", 
                        height=1, width=8, 
-                       command=add_friend,
+                       command=add_friend_brec,
                        font=("Times", 10)
                        ).pack(side=RIGHT) 
-                brojac +=1
+                nb -=1
+                index +=1
                     
 # tab friends recommendation
 def tab_frec():
@@ -649,39 +667,36 @@ def tab_frec():
            command=frec_to_lg,
            font=("Times", 13)
            ).pack(side=LEFT)  
-    #TODO - dohvacanje
-    preporuke = [["name", "surname", ["a","b","c"], ["a","b","c"]],
-                 ["name2", "surname2", ["a","b","c"], ["a","c"]],
-                 ["name3", "surname2", ["a","b","c"], ["a","c"]],
-                 ["name4", "surname2", ["a","b","c"], ["a","c"]],
-                 ["name5", "surname2", ["a","b","c"], ["a","c"]],
-                 ["name6", "surname2", ["a","b","c"], ["a","c"]]
-                 ]
     
-    #preporuke = []
-    if not preporuke:
+    global list_frec
+    list_frec = user.get_personal_recommendation(limit=9)
+    
+    if not list_frec:
         Label(screen_frec, text="No recommendations now. Try again later!", 
-          bg='#acc4d7', fg="black",
-          width=200,
-          font=("Times", 25, "bold")
-          ).pack(side=TOP, pady=15)
-    #dodat nesto ako ih nije 6
-    #DODAT CU IH SVE RUCNO STO NIJE LIJEPO ALI ...
+              bg='#acc4d7', fg="black",
+              width=200,
+              font=("Times", 25, "bold")
+              ).pack(side=TOP, pady=15)
     else:
-        brojac = 0
-        for i in range(2):
+        nb = len(list_frec)
+        index = 0
+        for i in range(3):
             row = Frame(screen_frec, bg="#acc4d7")
             row.pack(side=TOP, padx=10, pady = 15)
+            if nb == 0:
+                break;
             for j in range(3):
+                if nb == 0:
+                    break;
                 person_card = Frame(row, bg="#d47474", borderwidth=1, relief=RAISED)
                 person_card.pack(side=LEFT, padx=5, pady=10)
                 #name
-                Label(person_card, text=preporuke[brojac][0], 
+                Label(person_card, text=list_frec[index].name, 
                       bg="#d47474", fg="black",
                       width=20,
                       font=("Times", 15, "bold")
                       ).pack(side=TOP,pady=5)
-                Label(person_card, text=preporuke[brojac][1], 
+                Label(person_card, text=list_frec[index].surname, 
                       bg="#d47474", fg="black",
                       width=20,
                       font=("Times", 15, "bold")
@@ -691,17 +706,17 @@ def tab_frec():
                 Button(f_buttons, fg="white",
                        text="See more",bg="#547fa3", 
                        height=1, width=8, 
-                       command=person_info,
+                       command=lambda person = list_frec[index] : person_info_frec(person),
                        font=("Times", 10)
                        ).pack(side=LEFT) 
                 Button(f_buttons, fg="white",
                        text="Add",bg="#547fa3", 
                        height=1, width=8, 
-                       command=add_friend,
+                       command=add_friend_frec,
                        font=("Times", 10)
                        ).pack(side=RIGHT) 
-                brojac +=1
-                    
+                nb -=1
+                index +=1
     
 #-----------------------
 #pomocna
@@ -906,14 +921,8 @@ def see_college():
     
 def college_screen_delete():
     college_screen.destroy()
-
-
+  
 def search_like():
-    print(keyword.get())
-
-    
-def search_like():
-    global search_entry_value
     search_entry_value = StringVar(screen_friends)
     if keyword.get() != "all":
         Label(left_frame, text="Keyword:",
@@ -922,29 +931,45 @@ def search_like():
               ).pack(side=LEFT,pady=5)
         search_entry = Entry(left_frame, textvariable=search_entry_value)
         search_entry.pack(side=LEFT,pady=5,padx=5)
-        #TODO - pozvati nesto s tim vrijednostima
+        
     
     Button(left_frame, text="Search",
            bg="#547fa3", height=2, width=10,
-           command=search).pack(side=RIGHT)
+           command=lambda word = search_entry_value: search(word)).pack(side=RIGHT)
     
-def search():    
-    #TODO iz baze ucitaj
-    friends = [("ja", "sam"), ("ja","sam")]
-    #POMOCNO - promjenit cu im smjer na lijevo i ovo desno
+def search(word):    
+    #switch case
+    if keyword.get() == "all":
+            friends = user.get_all_friends()
+    elif keyword.get() == "name":
+            friends = user.get_friends_by_name(word)
+    elif keyword.get() == "surname":
+            friends = user.get_all_friends()    
+    elif keyword.get() == "year":
+            friends = user.get_all_friends()    
+    elif keyword.get() == "college":
+            friends = user.get_all_friends()
+    elif keyword.get() == "gy":
+            friends = user.get_all_friends()
+    else:
+        friends = user.get_all_friends()        
     right_frame = Frame(screen_friends, bg='#acc4d7')
     right_frame.pack(side=RIGHT,padx=10)
-    for (name, surname) in friends:
-        #frame for friends
-        ff = Frame(right_frame, bg="#acc4d7")
+    frame = ScrollableFrame(right_frame)
+    for f in friends:
+        ff = Frame(frame.scrollable_frame, bg="#acc4d7")
         ff.pack(pady=15)
-        Label(ff, text=name+" "+surname,
+        Label(ff, text=f.name+" "+f.surname,
               width=20,bg="#acc4d7",
-              font=("Times", 15)
+              font=("Times", 10)
               ).pack(side=LEFT)
+        Button(ff, text="See more",
+               bg="#547fa3", height=1, width=10,
+               command=add_friend_frec).pack(side=RIGHT)
         Button(ff, text="Add",
                bg="#547fa3", height=1, width=5,
-               command=add_friend).pack(side=RIGHT)
+               command=add_friend_frec).pack(side=RIGHT)
+    frame.pack(pady=10)
     
 def add_friend_frec():
     #tu dodat da se gumb disablea s config kada se doda
@@ -953,34 +978,192 @@ def add_friend_frec():
 def add_friend_brec():
     #tu dodat da se gumb disablea s config kada se doda
     #u listi je pa se makne (vidi web)
-    print("a")     
-
-#TODO   
-def person_info():
+    print("a")    
+  
+def person_info_brec(rec_person):
     global person_screen
-    person_screen = Toplevel(screen_frec)
+    person_screen = Toplevel(screen_brec)
     person_screen.title("Person info")
-    person_screen.geometry("350x300")
+    person_screen.geometry("550x500")
     person_screen.configure(bg='#d47474')
     Label(person_screen, 
-          text="More information about person:", 
+          text="More information about person:  (resize window if needed)", 
           font=("Times", 15, "bold"),
           bg='#d47474').pack(pady=10)
-    Label(person_screen, 
-          text="1. ....", 
+    frame_g = Frame(person_screen, bg="#d47474")
+    frame_g.pack(side=TOP)
+    Label(frame_g, 
+          text="Gender: ", 
+          font=("Times", 13, "bold"),
+          bg='#d47474').pack(side=LEFT)
+    Label(frame_g, 
+          text=rec_person.gender, 
           font=("Times", 13),
-          bg='#d47474').pack()
-    Label(person_screen, 
-          text="2. .....", 
+          bg='#d47474').pack(side=RIGHT)
+    frame_d = Frame(person_screen, bg="#d47474")
+    frame_d.pack(side=TOP)
+    Label(frame_d, 
+          text="Date of birth: ", 
+          font=("Times", 13, "bold"),
+          bg='#d47474').pack(side=LEFT)
+    Label(frame_d, 
+          text=rec_person.date_of_birth, 
           font=("Times", 13),
-          bg='#d47474').pack()
-    Label(person_screen, 
-          text="3. .....", 
+          bg='#d47474').pack(side=RIGHT)
+    frame_c = Frame(person_screen, bg="#d47474")
+    frame_c.pack(side=TOP)
+    Label(frame_c, 
+          text="College: ", 
+          font=("Times", 13, "bold"),
+          bg='#d47474').pack(side=LEFT)
+    Label(frame_c, 
+          text=rec_person.get_college().short_name, 
           font=("Times", 13),
-          bg='#d47474').pack()
+          bg='#d47474').pack(side=RIGHT)
+    frame_bottom = Frame(person_screen, bg="#d47474")
+    frame_bottom.pack(side=TOP, pady = 10)
+    #college info part
+    f_college_info = Frame(frame_bottom, bg="#d47474")
+    f_college_info.pack(side=LEFT)
+    Label(f_college_info, 
+          text="More college info: ", 
+          font=("Times", 12, "bold"),
+          bg='#d47474').pack(side=TOP)
+    Label(f_college_info, 
+          text="Enrollment year: " + str(rec_person.get_college_enroll()), 
+          font=("Times", 12),
+          bg='#d47474').pack(side=TOP)
+    Label(f_college_info, 
+          text="Graduate year: " + str(rec_person.get_college_graduate()), 
+          font=("Times", 12),
+          bg='#d47474').pack(side=TOP)
+    Label(f_college_info, 
+          text="Grade: " + str(rec_person.get_college_grade()), 
+          font=("Times", 12),
+          bg='#d47474').pack(side=TOP)
+    #skills part
+    f_skills = Frame(frame_bottom, bg="#d47474")
+    f_skills.pack(side=LEFT)
+    Label(f_skills, 
+              text="Skills: ", 
+              font=("Times", 12, "bold"),
+              bg='#d47474').pack(side=TOP)
+    list_skills = rec_person.skills
+    for s in list_skills:
+        Label(f_skills, 
+              text=s, 
+              font=("Times", 12),
+              bg='#d47474').pack(side=TOP)
+    #hobbies part
+    f_hobbies = Frame(frame_bottom, bg="#d47474")
+    f_hobbies.pack(side=LEFT)
+    Label(f_hobbies, 
+              text="Hobbies: ", 
+              font=("Times", 12, "bold"),
+              bg='#d47474').pack(side=TOP)
+    list_hobbies = rec_person.hobbies
+    for h in list_hobbies:
+        Label(f_hobbies, 
+              text=h, 
+              font=("Times", 12),
+              bg='#d47474').pack(side=TOP)
+        
     Button(person_screen, text="Hide",
            bg="#547fa3", height=2, width=10,
            command=person_screen_delete).pack(pady=30)
+    
+def person_info_frec(rec_person):
+    global person_screen
+    person_screen = Toplevel(screen_frec)
+    person_screen.title("Person info")
+    person_screen.geometry("550x500")
+    person_screen.configure(bg='#d47474')
+    Label(person_screen, 
+          text="More information about person:  (resize window if needed)", 
+          font=("Times", 15, "bold"),
+          bg='#d47474').pack(pady=10)
+    frame_g = Frame(person_screen, bg="#d47474")
+    frame_g.pack(side=TOP)
+    Label(frame_g, 
+          text="Gender: ", 
+          font=("Times", 13, "bold"),
+          bg='#d47474').pack(side=LEFT)
+    Label(frame_g, 
+          text=rec_person.gender, 
+          font=("Times", 13),
+          bg='#d47474').pack(side=RIGHT)
+    frame_d = Frame(person_screen, bg="#d47474")
+    frame_d.pack(side=TOP)
+    Label(frame_d, 
+          text="Date of birth: ", 
+          font=("Times", 13, "bold"),
+          bg='#d47474').pack(side=LEFT)
+    Label(frame_d, 
+          text=rec_person.date_of_birth, 
+          font=("Times", 13),
+          bg='#d47474').pack(side=RIGHT)
+    frame_c = Frame(person_screen, bg="#d47474")
+    frame_c.pack(side=TOP)
+    Label(frame_c, 
+          text="College: ", 
+          font=("Times", 13, "bold"),
+          bg='#d47474').pack(side=LEFT)
+    Label(frame_c, 
+          text=rec_person.get_college().short_name, 
+          font=("Times", 13),
+          bg='#d47474').pack(side=RIGHT)
+    frame_bottom = Frame(person_screen, bg="#d47474")
+    frame_bottom.pack(side=TOP, pady = 10)
+    #college info part
+    f_college_info = Frame(frame_bottom, bg="#d47474")
+    f_college_info.pack(side=LEFT)
+    Label(f_college_info, 
+          text="More college info: ", 
+          font=("Times", 12, "bold"),
+          bg='#d47474').pack(side=TOP)
+    Label(f_college_info, 
+          text="Enrollment year: " + str(rec_person.get_college_enroll()), 
+          font=("Times", 12),
+          bg='#d47474').pack(side=TOP)
+    Label(f_college_info, 
+          text="Graduate year: " + str(rec_person.get_college_graduate()), 
+          font=("Times", 12),
+          bg='#d47474').pack(side=TOP)
+    Label(f_college_info, 
+          text="Grade: " + str(rec_person.get_college_grade()), 
+          font=("Times", 12),
+          bg='#d47474').pack(side=TOP)
+    #skills part
+    f_skills = Frame(frame_bottom, bg="#d47474")
+    f_skills.pack(side=LEFT)
+    Label(f_skills, 
+              text="Skills: ", 
+              font=("Times", 12, "bold"),
+              bg='#d47474').pack(side=TOP)
+    list_skills = rec_person.skills
+    for s in list_skills:
+        Label(f_skills, 
+              text=s, 
+              font=("Times", 12),
+              bg='#d47474').pack(side=TOP)
+    #hobbies part
+    f_hobbies = Frame(frame_bottom, bg="#d47474")
+    f_hobbies.pack(side=LEFT)
+    Label(f_hobbies, 
+              text="Hobbies: ", 
+              font=("Times", 12, "bold"),
+              bg='#d47474').pack(side=TOP)
+    list_hobbies = rec_person.hobbies
+    for h in list_hobbies:
+        Label(f_hobbies, 
+              text=h, 
+              font=("Times", 12),
+              bg='#d47474').pack(side=TOP)
+        
+    Button(person_screen, text="Hide",
+           bg="#547fa3", height=2, width=10,
+           command=person_screen_delete).pack(pady=30)
+    
 def person_screen_delete():
     person_screen.destroy()    
     
