@@ -13,6 +13,7 @@ from database import *
 from person import *
 from college import *
 from tkinter import *
+from tkcalendar import Calendar
 import os 
 from PIL import ImageTk, Image
 #from tkinter.ttk import *
@@ -38,6 +39,29 @@ class ScrollableFrame(Frame):
 
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+class ScrollableFrame_min(Frame):
+    def __init__(self, container, *args, **kwargs):
+        super().__init__(container, *args, **kwargs)
+        canvas = Canvas(self)
+        scrollbar = Scrollbar(self, orient="vertical", command=canvas.yview)
+        self.scrollable_frame = Frame(canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+
+        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.config(width=100, height=100)
+        
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+
 
 #CONTROLLERS-----
 def login_ok():
@@ -109,6 +133,11 @@ def brec_to_frec():
 def brec_to_lg():
     screen_brec.destroy()
     main_window()
+#clear all screen_friends
+def clear_all():
+    btn_search = None
+    screen_friends.destroy()
+    tab_friends()
     
 #---------------------------------
 # TABS----------------------------
@@ -167,28 +196,141 @@ def register():
     global register_screen
     register_screen = Toplevel(main_screen)
     register_screen.title("Register")
-    register_screen.geometry("500x400")
-    register_screen.configure(bg='#acc4d7')
- 
-    global username
-    global password
-    global username_entry
-    global password_entry
-    username = StringVar()
-    password = StringVar()
+    register_screen.geometry("600x700")
+    register_screen.configure(bg='#206b71')
  
     Label(register_screen, text="Please enter details below", 
-          bg="#acc4d7", width="30", height="2", 
+          bg="white", fg = "black", width=30, height=2, 
           font=("Times", 15, "bold")
-          ).pack(pady=(20,0))
+          ).pack(pady=5)
+   
+    #frame for name and surname
+    frame_name = Frame(register_screen, bg="#206b71")
+    frame_name.pack(side=TOP, pady=5)
+    Label(frame_name, text="Name:  *",
+          bg="#206b71", width=10, height=2, 
+          font=("Times", 13, "bold")
+          ).pack(side = LEFT)
+    name = StringVar()
+    name_entry = Entry(frame_name, textvariable=name)
+    name_entry.pack(side = LEFT)
+    Label(frame_name, text="Surname:  *",
+          bg="#206b71", width=10, height=2, 
+          font=("Times", 13, "bold")
+          ).pack(side = LEFT)
+    surname = StringVar()
+    surname_entry = Entry(frame_name, textvariable=surname)
+    surname_entry.pack(side = LEFT)
+    #frame for gender
+    frame_g = Frame(register_screen, bg="#206b71")
+    frame_g.pack(side=TOP)
+    Label(frame_g, text="Gender:  *",
+          bg="#206b71", width=20, height=2, 
+          font=("Times", 13, "bold")
+          ).pack(side = LEFT)
+    #frame for radiobtns
+    frame_btn_g = Frame(frame_g, bg="#206b71")
+    frame_btn_g.pack(side=RIGHT)
+    g = StringVar()
+    g.set("F")
+    rbtn_f = Radiobutton(frame_btn_g,bg="#206b71", text="Female", variable=g, value="F")
+    rbtn_m = Radiobutton(frame_btn_g, bg="#206b71",text="Male", variable=g, value="G")
+    rbtn_f.pack(side=LEFT)
+    rbtn_m.pack(side=RIGHT)
+    #frame for birthday
+    frame_bd = Frame(register_screen, bg="#206b71")
+    frame_bd.pack(side=TOP)
+    Label(frame_bd, text="Date:  *",
+          bg="#206b71", width=20, height=2, 
+          font=("Times", 13, "bold")
+          ).pack(side = TOP)
+    cal = Calendar(frame_bd, selectmode = 'day',
+                   year = 2000, month = 1, 
+                   day = 1, date_pattern = 'y-mm-dd',
+                   minday= '1980-01-01', maxday='2000-01-01')
+    cal.pack(side=TOP)
+    #frame for college
+    frame_coll = Frame(register_screen, bg="#206b71")
+    frame_coll.pack(side=TOP)
+    Label(frame_coll, text="College:  *",
+          bg="#206b71", width=20, height=2, 
+          font=("Times", 13, "bold")
+          ).pack(side = TOP)
+    #frame for radiobtns
+    frame_btn_c = Frame(frame_coll, bg="#206b71")
+    frame_btn_c.pack(side=TOP)
+    c = StringVar()
+    c.set("PMF")
+    rbtn_1 = Radiobutton(frame_btn_c,bg="#206b71", text="PMF", variable=c, value="PMF")
+    rbtn_2 = Radiobutton(frame_btn_c, bg="#206b71",text="FER", variable=c, value="FER")
+    rbtn_3 = Radiobutton(frame_btn_c, bg="#206b71",text="TVZ", variable=c, value="TVZ")
+    rbtn_4 = Radiobutton(frame_btn_c, bg="#206b71",text="FSB", variable=c, value="FSB")
+    rbtn_5 = Radiobutton(frame_btn_c, bg="#206b71",text="PBF", variable=c, value="PBF")
+    rbtn_6 = Radiobutton(frame_btn_c, bg="#206b71",text="FKIT", variable=c, value="FKIT")
+    rbtn_7 = Radiobutton(frame_btn_c, bg="#206b71",text="FFZG", variable=c, value="FFZG")
+    rbtn_8 = Radiobutton(frame_btn_c, bg="#206b71",text="FHS", variable=c, value="FHS")
+    rbtn_9 = Radiobutton(frame_btn_c, bg="#206b71",text="Pravo", variable=c, value="Pravo")
+    rbtn_1.pack(side=LEFT)
+    rbtn_2.pack(side=LEFT)
+    rbtn_3.pack(side=LEFT)
+    rbtn_4.pack(side=LEFT)
+    rbtn_5.pack(side=LEFT)
+    rbtn_6.pack(side=LEFT)
+    rbtn_7.pack(side=LEFT)
+    rbtn_8.pack(side=LEFT)
+    rbtn_9.pack(side=LEFT)
+    #frame for ey and gy 
+    frame_ey_gy = Frame(register_screen, bg="#206b71")
+    frame_ey_gy.pack(side=TOP)
+    Label(frame_ey_gy, text="Enrollment year:  *",
+          bg="#206b71", width=20, height=2, 
+          font=("Times", 13, "bold")
+          ).pack(side = LEFT)
+    ey = IntVar()
+    ey_entry = Entry(frame_ey_gy, textvariable=ey, width=10)
+    ey_entry.pack(side = LEFT)
     
-    Label(register_screen, text="Username  *",
-          bg="white", width=17, height=2, 
-          font=("Times", 13)
-          ).pack()
-    # frame for entry
-    frame = Frame(register_screen, bg="white",bd=18)
-    frame.pack()
+    gy = IntVar()
+    gy_entry = Entry(frame_ey_gy, textvariable=gy, width=10)
+    gy_entry.pack(side = RIGHT)
+    Label(frame_ey_gy, text="Graduate year:  *",
+          bg="#206b71", width=20, height=2, 
+          font=("Times", 13, "bold")
+          ).pack(side = RIGHT)
+    
+    #frame for grade
+    frame_grade = Frame(register_screen, bg="#206b71")
+    frame_grade.pack(side=TOP)
+    Label(frame_grade, text="Grade:  * (from 1.00 to 5.00 decimal number)",
+          bg="#206b71", width=40, height=2, 
+          font=("Times", 13, "bold")
+          ).pack(side = LEFT)
+    grade = DoubleVar()
+    grade_entry = Entry(frame_grade, textvariable=grade, width=10)
+    grade_entry.pack(side = LEFT)
+    '''
+    #frame for skills and hobbies
+    frame_last = Frame(register_screen, bg="#206b71")
+    frame_last.pack()
+    frame_skills = ScrollableFrame_min(frame_last)
+    frame_skills.pack(side=LEFT)
+    '''
+    Button(register_screen, bg="#547fa3", 
+           text="Add skills and hobbies", width=20, height=2, 
+           #TODO
+           command = lambda name=name.get(), surname=surname.get(), gender = g.get(),
+                            date = cal.get_date(), college = c.get(), 
+                            ey = ey.get(), gy = gy.get(), grade = grade.get(): 
+                            add_skills_hobbies(name, surname, gender, date, college, ey, gy, grade)
+           ).pack(side=BOTTOM,pady = 10)
+    
+    register_screen.mainloop()
+    '''
+    frame_hobbies = ScrollableFrame_min(frame_last)
+    frame_hobbies.pack(side=RIGHT)
+    register_screen.mainloop()
+    '''
+    '''
     # entry username
     username_entry = Entry(frame, textvariable=username)
     username_entry.pack()
@@ -208,6 +350,7 @@ def register():
            text="Register", width=10, height=2, 
            command = register_user
            ).pack(side=TOP)
+    '''
     
 # main window with login or register selection    
 def main_window():
@@ -272,13 +415,13 @@ def tab_information():
            font=("Times", 13)
            ).pack(side=LEFT)
     Button(navigation2, fg="white",
-           text="Friends recommendations",bg="#206b71", 
+           text="Friends \n recommendations",bg="#206b71", 
            height=2, width=20, 
            command=info_to_frec,
            font=("Times", 13)
            ).pack(side=LEFT)
     Button(navigation2, fg="white",
-           text="Business recommendations",bg="#206b71", 
+           text="Business \n recommendations",bg="#206b71", 
            height=2, width=20, 
            command=info_to_brec,
            font=("Times", 13)
@@ -315,7 +458,6 @@ def tab_information():
           width=20,bg="#acc4d7",
           font=("Times", 15, "bold")
           ).pack(side=LEFT)
-    #TODO - pozvat funkciju za prezime
     Label(sur_f, text=user.surname,
           bg="#547fa3",
           fg="white", width=20,
@@ -334,7 +476,7 @@ def tab_information():
     else:
         color = "#547fa3"
     
-    Label(g_f, text="F",
+    Label(g_f, text=user.gender,
           bg=color,
           fg="white", width=20,
           font=("Times", 13)
@@ -361,7 +503,13 @@ def tab_information():
           font=("Times", 15, "bold")
           ).pack(side=LEFT)
     global user_college
-    user_college = user.get_college()
+    global ey
+    global gy
+    global gr
+    
+    user_college, ey, gy, gr = user.get_attendance_info("../database/database.cfg")
+    
+
     Button(c_f, fg="white",
            text=user_college.short_name,bg="#547fa3", 
            height=1, width=20, 
@@ -379,7 +527,7 @@ def tab_information():
     Button(s_f, fg="white",
            text="See More",bg="#547fa3", 
            height=1, width=20, 
-           command=see_skills,
+           command=lambda screen=screen_information, key = "skills" : see_more_s_h(key, screen),
            font=("Times", 12)
            ).pack(side=LEFT)
     #hobbies frame
@@ -393,7 +541,7 @@ def tab_information():
     Button(h_f, fg="white",
            text="See More",bg="#547fa3", 
            height=1, width=20, 
-           command=see_hobbies,
+           command=lambda screen=screen_information, key = "hobbies" : see_more_s_h(key, screen),
            font=("Times", 12)
            ).pack(side=LEFT)
     #mozda dodat dio s statistikom prijatelja
@@ -401,7 +549,7 @@ def tab_information():
     Button(info, fg="white",
            text="Change informations",bg="#547fa3", 
            height=1, width=20, 
-           command=see_skills,
+           command=main_window,
            font=("Times", 15)
            ).pack(pady = 50)  
     
@@ -447,13 +595,13 @@ def tab_friends():
            font=("Times", 13)
            ).pack(side=LEFT)
     Button(navigation2, fg="white",
-           text="Friends recommendations",bg="#206b71", 
+           text="Friends \n recommendations",bg="#206b71", 
            height=2, width=20, 
            command=f_to_frec,
            font=("Times", 13)
            ).pack(side=LEFT)
     Button(navigation2, fg="white",
-           text="Business recommendations",bg="#206b71", 
+           text="Business \n recommendations",bg="#206b71", 
            height=2, width=20, 
            command=f_to_brec,
            font=("Times", 13)
@@ -483,26 +631,36 @@ def tab_friends():
     keyword = StringVar(screen_friends, "all")
     # variable for radio button value
     value = StringVar(screen_friends, "all")
-    radio_dict = {"all" : "all",
-                   "name" : "name",
-                   "surname" : "surname",
-                   "year of birth" : "year",
-                   "college" : "college",
-                   "graduating year" : "gy",
-                   "enrollment year" : "ey"}
+    radio_dict = {"All" : "all",
+                   "Name" : "name",
+                   "Surname" : "surname",
+                   "Year of birth" : "year",
+                   "College" : "college",
+                   "Graduating year" : "gy",
+                   "Enrollment year" : "ey"}
     style = ttk.Style(frame_radio)
     style.configure("TRadiobutton", background = "white",
                     font = ("arial", 10), width=20)
+    
+    radio_buttons = []
     for (text, value) in radio_dict.items():
-        ttk.Radiobutton(frame_radio, text = text, variable = keyword,
-                        value = value, command=search_like).pack(side = TOP, ipady = 5)
-    #ERROR NE SALJU SE DOBRO ARGUMENTI
+        btn_r = ttk.Radiobutton(frame_radio, text = text, variable = keyword,
+                        value = value, command=lambda l = radio_buttons: search_like(l))
+        btn_r.pack(side = TOP, ipady = 5)
+        radio_buttons.append(btn_r)
+    
+    Button(screen_friends,fg="white",
+           text="Clear all",bg="#547fa3", 
+           height=1, width=10, 
+           command=clear_all,
+           font=("Times", 13)
+           ).pack(side=BOTTOM, pady=5)
     
 # tab business recommendation
 def tab_brec():
     global screen_brec
     screen_brec = Tk()
-    screen_brec.geometry("900x700")
+    screen_brec.geometry("900x800")
     screen_brec.title("Project - social network")
     screen_brec.configure(bg='#acc4d7')
     
@@ -540,13 +698,13 @@ def tab_brec():
            font=("Times", 13)
            ).pack(side=LEFT)
     Button(navigation2, fg="white",
-           text="Friends recommendations",bg="#206b71", 
+           text="Friends \n recommendations",bg="#206b71", 
            height=2, width=20, 
            command=brec_to_frec,
            font=("Times", 13)
            ).pack(side=LEFT)
     Button(navigation2, fg="white",
-           text="Business recommendations",bg="#114d52", 
+           text="Business \n recommendations",bg="#114d52", 
            height=2, width=20, 
            state=DISABLED, command=main_window,
            font=("Times", 13)
@@ -570,6 +728,7 @@ def tab_brec():
     else:
         nb = len(list_brec)
         index = 0
+        button_list = []
         for i in range(3):
             row = Frame(screen_brec, bg="#acc4d7")
             row.pack(side=TOP, padx=10, pady = 15)
@@ -596,15 +755,17 @@ def tab_brec():
                 Button(f_buttons, fg="white",
                        text="See more",bg="#547fa3", 
                        height=1, width=8, 
-                       command=lambda person = list_brec[index] : person_info_brec(person),
+                       command=lambda person = list_brec[index], screen = screen_brec : person_info(person, screen),
                        font=("Times", 10)
                        ).pack(side=LEFT) 
-                Button(f_buttons, fg="white",
+                btn_add = Button(f_buttons, fg="white",
                        text="Add",bg="#547fa3", 
                        height=1, width=8, 
-                       command=add_friend_brec,
+                       command=lambda person = list_brec[index], index=index, b_l= button_list, screen=screen_brec: add_friend(person, screen, index, b_l),
                        font=("Times", 10)
-                       ).pack(side=RIGHT) 
+                       )
+                btn_add.pack(side=RIGHT) 
+                button_list.append(btn_add)
                 nb -=1
                 index +=1
                     
@@ -612,7 +773,7 @@ def tab_brec():
 def tab_frec():
     global screen_frec
     screen_frec = Tk()
-    screen_frec.geometry("900x700")
+    screen_frec.geometry("900x800")
     screen_frec.title("Project - social network")
     screen_frec.configure(bg='#acc4d7')
     
@@ -650,13 +811,13 @@ def tab_frec():
            font=("Times", 13)
            ).pack(side=LEFT)
     Button(navigation2, fg="white",
-           text="Friends recommendations",bg="#114d52", 
+           text="Friends \n recommendations",bg="#114d52", 
            height=2, width=20, 
            state=DISABLED, command=main_window,
            font=("Times", 13)
            ).pack(side=LEFT)
     Button(navigation2, fg="white",
-           text="Business recommendations",bg="#206b71", 
+           text="Business \n recommendations",bg="#206b71", 
            height=2, width=20, 
            command=frec_to_brec,
            font=("Times", 13)
@@ -680,6 +841,7 @@ def tab_frec():
     else:
         nb = len(list_frec)
         index = 0
+        button_list = []
         for i in range(3):
             row = Frame(screen_frec, bg="#acc4d7")
             row.pack(side=TOP, padx=10, pady = 15)
@@ -706,23 +868,21 @@ def tab_frec():
                 Button(f_buttons, fg="white",
                        text="See more",bg="#547fa3", 
                        height=1, width=8, 
-                       command=lambda person = list_frec[index] : person_info_frec(person),
+                       command=lambda person = list_frec[index], screen = screen_frec : person_info(person, screen),
                        font=("Times", 10)
                        ).pack(side=LEFT) 
-                Button(f_buttons, fg="white",
+                btn_add = Button(f_buttons, fg="white",
                        text="Add",bg="#547fa3", 
                        height=1, width=8, 
-                       command=add_friend_frec,
-                       font=("Times", 10)
-                       ).pack(side=RIGHT) 
+                       command=lambda person = list_frec[index], index=index, b_l= button_list, screen=screen_frec: add_friend(person, screen, index, b_l),
+                       font=("Times", 10))
+                btn_add.pack(side=RIGHT) 
+                button_list.append(btn_add)
                 nb -=1
                 index +=1
     
-#-----------------------
-#pomocna
-def pomocna():
-    print("uspio")
-    
+#--------------------------------------------------------------------
+
 # TODO: spojit ovo s bazom
 def login_verify():
     user_name = name_verify.get()
@@ -737,7 +897,7 @@ def login_verify():
         login_error("User with given name and surname is not in database")
     else:
         login_ok()
-        
+#-------------------------------------------------------------------------        
 # TODO:dodat dio za unos podataka i provjerit je li vec u bazi
 def register_user():
  
@@ -769,7 +929,7 @@ def register_user():
  
     
 
- 
+#-------------------------------------------------------- 
 # pop up window for user not found while logging in 
 def login_error(message):
     global login_error_screen
@@ -787,12 +947,39 @@ def login_error(message):
     
 def login_error_screen_delete():
     login_error_screen.destroy()   
+#--------------------------------------------------------   
+
+def see_more_s_h(key, screen):
+    global see_more_screen
+    see_more_screen = Toplevel(screen)
+    see_more_screen.title("List of your " + key)
+    see_more_screen.geometry("350x500")
+    see_more_screen.configure(bg='#d47474')
+    Label(see_more_screen, 
+          text="Your " + key + " are: (resize window if needed)", 
+          font=("Times", 12, "bold"),
+          bg='#d47474').pack(pady=10)
+    if key == "skills": 
+        user_list =  user.skills
+    else:
+        user_list =  user.hobbies
+    i = 1
+    for item in user_list:
+        Label(see_more_screen, 
+              text=str(i) + ". " + item, 
+              font=("Times", 10),
+              bg='#d47474').pack(pady=10)
+        i +=1
+    Button(see_more_screen, text="Hide",
+           bg="#547fa3", height=2, width=10,
+           command=see_more_screen_delete).pack(pady=30)
+    
+def see_more_screen_delete():
+    see_more_screen.destroy()  
+
+#-----------------------------------------------------------------
     
 
-
-
-    
-#TODO - iz baze izvuc    
 def see_skills():
     global skills_screen
     skills_screen = Toplevel(screen_information)
@@ -815,7 +1002,7 @@ def see_skills():
            command=skills_screen_delete).pack(pady=30)
 def skills_screen_delete():
     skills_screen.destroy()   
-#TODO - iz baze izvuc    
+    
 def see_hobbies():
     global hobbies_screen
     hobbies_screen = Toplevel(screen_information)
@@ -842,6 +1029,7 @@ def see_hobbies():
 def hobbies_screen_delete():
     hobbies_screen.destroy()
 
+#----------------------------------------------------------------------------
 def see_college():
     global college_screen
     college_screen = Toplevel(screen_information)
@@ -875,11 +1063,6 @@ def see_college():
           text=user_college.area, 
           font=("Times", 13),
           bg='#d47474').pack()
-    #from database get
-    enrollment_y = user.get_college_enroll() 
-    graduate_y = user.get_college_graduate() 
-    grade = user.get_college_grade() 
-    
     #frame for enrollment_year
     e_f = Frame(college_screen, bg='#d47474')
     e_f.pack()
@@ -888,7 +1071,7 @@ def see_college():
           font=("Times", 13, "bold")
           ).pack()
     Label(e_f, 
-          text=enrollment_y, 
+          text=str(ey), 
           font=("Times", 13),
           bg='#d47474').pack()
     #frame for graduate_year
@@ -899,7 +1082,7 @@ def see_college():
           font=("Times", 13, "bold")
           ).pack()
     Label(gy_f, 
-          text=graduate_y, 
+          text=str(gy), 
           font=("Times", 13),
           bg='#d47474').pack()
     #frame for graduate_year
@@ -910,7 +1093,7 @@ def see_college():
           font=("Times", 13, "bold")
           ).pack()
     Label(grade_f, 
-          text=grade, 
+          text=str(gr), 
           font=("Times", 13),
           bg='#d47474').pack()
     
@@ -921,8 +1104,12 @@ def see_college():
     
 def college_screen_delete():
     college_screen.destroy()
-  
-def search_like():
+#-------------------------------------------------------------------  
+def search_like(radio_buttons): 
+    #extra:
+    for i in range(len(radio_buttons)):
+        radio_buttons[i].configure(state = DISABLED)
+    
     global search_entry_value
     search_entry_value = StringVar(screen_friends)
     if keyword.get() != "all":
@@ -933,14 +1120,27 @@ def search_like():
         search_entry = Entry(left_frame, textvariable=search_entry_value)
         search_entry.pack(side=LEFT,pady=5,padx=5)
         
-    
-    Button(left_frame, text="Search",
-           bg="#547fa3", height=2, width=10,
-           command=lambda word = search_entry_value: search(word)).pack(side=RIGHT)
+    global btn_search
+    btn_search = Button(left_frame, text="Search",
+           bg="#547fa3", height=2, width=5,
+           command=lambda word = search_entry_value: search(word))
+    btn_search.pack(side=RIGHT)
     
 def search(word):    
+    
+    btn_search.configure(state = DISABLED)
+    
     word = str(word.get())
-    if keyword.get() == "all":
+    #frame for results
+    right_frame = Frame(screen_friends, bg='#acc4d7')
+    right_frame.pack(side=RIGHT,padx=10)
+    if word == "" and keyword.get() != "all":
+        Label(right_frame, text="Keyword is not valid.",
+              width=20,bg="#acc4d7",
+              font=("Times", 15, "bold")
+              ).pack(side=LEFT, padx = 5)
+        return
+    elif keyword.get() == "all":
             friends = user.get_all_friends()
     elif keyword.get() == "name":
             friends = user.get_friends_by_sur_name(value = word, key = "name")
@@ -954,13 +1154,12 @@ def search(word):
             friends = user.get_friends_by_college_info(value = int(word), key = "graduate_year")
     else:
         friends = user.get_friends_by_college_info(value = int(word), key = "enrollment_year")
-    right_frame = Frame(screen_friends, bg='#acc4d7')
-    right_frame.pack(side=RIGHT,padx=10)
+    
     if not friends:
         Label(right_frame, text="No matches found in database",
               width=20,bg="#acc4d7",
               font=("Times", 15, "bold")
-              ).pack(side=LEFT)        
+              ).pack(side=LEFT, padx = 5)        
     else:
         frame = ScrollableFrame(right_frame)
         for f in friends:
@@ -973,206 +1172,42 @@ def search(word):
             Button(ff, text="See more",
                    bg="#547fa3", height=1, width=10,
                    command=lambda person=f, screen=screen_friends: person_info(person, screen)).pack(side=RIGHT)
-            Button(ff, text="Add",
-                   bg="#547fa3", height=1, width=5,
-                   command=add_friend_frec).pack(side=RIGHT)
             frame.pack(pady=10)
 
     
-def add_friend_brec():
-    #tu dodat da se gumb disablea s config kada se doda
-    #u listi je pa se makne (vidi web)
-    print("a")    
-  
-def person_info_brec(rec_person):
-    global person_screen
-    person_screen = Toplevel(screen_brec)
-    person_screen.title("Person info")
-    person_screen.geometry("550x500")
-    person_screen.configure(bg='#d47474')
-    Label(person_screen, 
-          text="More information about person:  (resize window if needed)", 
-          font=("Times", 15, "bold"),
-          bg='#d47474').pack(pady=10)
-    frame_g = Frame(person_screen, bg="#d47474")
-    frame_g.pack(side=TOP)
-    Label(frame_g, 
-          text="Gender: ", 
-          font=("Times", 13, "bold"),
-          bg='#d47474').pack(side=LEFT)
-    Label(frame_g, 
-          text=rec_person.gender, 
-          font=("Times", 13),
-          bg='#d47474').pack(side=RIGHT)
-    frame_d = Frame(person_screen, bg="#d47474")
-    frame_d.pack(side=TOP)
-    Label(frame_d, 
-          text="Date of birth: ", 
-          font=("Times", 13, "bold"),
-          bg='#d47474').pack(side=LEFT)
-    Label(frame_d, 
-          text=rec_person.date_of_birth, 
-          font=("Times", 13),
-          bg='#d47474').pack(side=RIGHT)
-    frame_c = Frame(person_screen, bg="#d47474")
-    frame_c.pack(side=TOP)
-    Label(frame_c, 
-          text="College: ", 
-          font=("Times", 13, "bold"),
-          bg='#d47474').pack(side=LEFT)
-    Label(frame_c, 
-          text=rec_person.get_college().short_name, 
-          font=("Times", 13),
-          bg='#d47474').pack(side=RIGHT)
-    frame_bottom = Frame(person_screen, bg="#d47474")
-    frame_bottom.pack(side=TOP, pady = 10)
-    #college info part
-    f_college_info = Frame(frame_bottom, bg="#d47474")
-    f_college_info.pack(side=LEFT)
-    Label(f_college_info, 
-          text="More college info: ", 
-          font=("Times", 12, "bold"),
-          bg='#d47474').pack(side=TOP)
-    Label(f_college_info, 
-          text="Enrollment year: " + str(rec_person.get_college_enroll()), 
-          font=("Times", 12),
-          bg='#d47474').pack(side=TOP)
-    Label(f_college_info, 
-          text="Graduate year: " + str(rec_person.get_college_graduate()), 
-          font=("Times", 12),
-          bg='#d47474').pack(side=TOP)
-    Label(f_college_info, 
-          text="Grade: " + str(rec_person.get_college_grade()), 
-          font=("Times", 12),
-          bg='#d47474').pack(side=TOP)
-    #skills part
-    f_skills = Frame(frame_bottom, bg="#d47474")
-    f_skills.pack(side=LEFT)
-    Label(f_skills, 
-              text="Skills: ", 
-              font=("Times", 12, "bold"),
-              bg='#d47474').pack(side=TOP)
-    list_skills = rec_person.skills
-    for s in list_skills:
-        Label(f_skills, 
-              text=s, 
-              font=("Times", 12),
-              bg='#d47474').pack(side=TOP)
-    #hobbies part
-    f_hobbies = Frame(frame_bottom, bg="#d47474")
-    f_hobbies.pack(side=LEFT)
-    Label(f_hobbies, 
-              text="Hobbies: ", 
-              font=("Times", 12, "bold"),
-              bg='#d47474').pack(side=TOP)
-    list_hobbies = rec_person.hobbies
-    for h in list_hobbies:
-        Label(f_hobbies, 
-              text=h, 
-              font=("Times", 12),
-              bg='#d47474').pack(side=TOP)
+def add_friend(person, screen, index, b_l):
+    if user.make_friendship(person) == True:
+        b_l[index].configure(state=DISABLED)
+        friendship_result(screen, "Friendship added. \n You and "+person.name+" "+person.surname+" are now friends!" )
+    elif user.make_friendship(person) == False :
+        friendship_result(screen, "You and " +person.name+" "+person.surname+" are already friends!")
+    else:
+        friendship_result(screen, "Error while creating")
         
-    Button(person_screen, text="Hide",
-           bg="#547fa3", height=2, width=10,
-           command=person_screen_delete).pack(pady=30)
+# pop up window for friendships
+def friendship_result(screen, message):
+    global friendship_screen
+    friendship_screen = Toplevel(screen)
+    friendship_screen.title("Friendship")
+    friendship_screen.geometry("450x100")
+    friendship_screen.configure(bg='#f78383')
+    Label(friendship_screen, 
+          text=message, 
+          font=("Times", 13, "bold"),
+          bg='#f78383').pack(pady=10)
+    Button(friendship_screen, text="OK",
+           bg="#547fa3", 
+           command=friendship_screen_delete).pack()
     
-def person_info_frec(rec_person):
-    global person_screen
-    person_screen = Toplevel(screen_frec)
-    person_screen.title("Person info")
-    person_screen.geometry("550x500")
-    person_screen.configure(bg='#d47474')
-    Label(person_screen, 
-          text="More information about person:  (resize window if needed)", 
-          font=("Times", 15, "bold"),
-          bg='#d47474').pack(pady=10)
-    frame_g = Frame(person_screen, bg="#d47474")
-    frame_g.pack(side=TOP)
-    Label(frame_g, 
-          text="Gender: ", 
-          font=("Times", 13, "bold"),
-          bg='#d47474').pack(side=LEFT)
-    Label(frame_g, 
-          text=rec_person.gender, 
-          font=("Times", 13),
-          bg='#d47474').pack(side=RIGHT)
-    frame_d = Frame(person_screen, bg="#d47474")
-    frame_d.pack(side=TOP)
-    Label(frame_d, 
-          text="Date of birth: ", 
-          font=("Times", 13, "bold"),
-          bg='#d47474').pack(side=LEFT)
-    Label(frame_d, 
-          text=rec_person.date_of_birth, 
-          font=("Times", 13),
-          bg='#d47474').pack(side=RIGHT)
-    frame_c = Frame(person_screen, bg="#d47474")
-    frame_c.pack(side=TOP)
-    Label(frame_c, 
-          text="College: ", 
-          font=("Times", 13, "bold"),
-          bg='#d47474').pack(side=LEFT)
-    Label(frame_c, 
-          text=rec_person.get_college().short_name, 
-          font=("Times", 13),
-          bg='#d47474').pack(side=RIGHT)
-    frame_bottom = Frame(person_screen, bg="#d47474")
-    frame_bottom.pack(side=TOP, pady = 10)
-    #college info part
-    f_college_info = Frame(frame_bottom, bg="#d47474")
-    f_college_info.pack(side=LEFT)
-    Label(f_college_info, 
-          text="More college info: ", 
-          font=("Times", 12, "bold"),
-          bg='#d47474').pack(side=TOP)
-    Label(f_college_info, 
-          text="Enrollment year: " + str(rec_person.get_college_enroll()), 
-          font=("Times", 12),
-          bg='#d47474').pack(side=TOP)
-    Label(f_college_info, 
-          text="Graduate year: " + str(rec_person.get_college_graduate()), 
-          font=("Times", 12),
-          bg='#d47474').pack(side=TOP)
-    Label(f_college_info, 
-          text="Grade: " + str(rec_person.get_college_grade()), 
-          font=("Times", 12),
-          bg='#d47474').pack(side=TOP)
-    #skills part
-    f_skills = Frame(frame_bottom, bg="#d47474")
-    f_skills.pack(side=LEFT)
-    Label(f_skills, 
-              text="Skills: ", 
-              font=("Times", 12, "bold"),
-              bg='#d47474').pack(side=TOP)
-    list_skills = rec_person.skills
-    for s in list_skills:
-        Label(f_skills, 
-              text=s, 
-              font=("Times", 12),
-              bg='#d47474').pack(side=TOP)
-    #hobbies part
-    f_hobbies = Frame(frame_bottom, bg="#d47474")
-    f_hobbies.pack(side=LEFT)
-    Label(f_hobbies, 
-              text="Hobbies: ", 
-              font=("Times", 12, "bold"),
-              bg='#d47474').pack(side=TOP)
-    list_hobbies = rec_person.hobbies
-    for h in list_hobbies:
-        Label(f_hobbies, 
-              text=h, 
-              font=("Times", 12),
-              bg='#d47474').pack(side=TOP)
-        
-    Button(person_screen, text="Hide",
-           bg="#547fa3", height=2, width=10,
-           command=person_screen_delete).pack(pady=30)
-    
-def person_info(rec_person, screen):
+def friendship_screen_delete():
+    friendship_screen.destroy() 
+
+#----------------------------------------------------------------------------   
+def person_info(person, screen):
     global person_screen
     person_screen = Toplevel(screen)
     person_screen.title("Person info")
-    person_screen.geometry("550x500")
+    person_screen.geometry("650x600")
     person_screen.configure(bg='#d47474')
     Label(person_screen, 
           text="More information about person:  (resize window if needed)", 
@@ -1185,7 +1220,7 @@ def person_info(rec_person, screen):
           font=("Times", 13, "bold"),
           bg='#d47474').pack(side=LEFT)
     Label(frame_g, 
-          text=rec_person.gender, 
+          text=person.gender, 
           font=("Times", 13),
           bg='#d47474').pack(side=RIGHT)
     frame_d = Frame(person_screen, bg="#d47474")
@@ -1195,48 +1230,49 @@ def person_info(rec_person, screen):
           font=("Times", 13, "bold"),
           bg='#d47474').pack(side=LEFT)
     Label(frame_d, 
-          text=rec_person.date_of_birth, 
+          text=person.date_of_birth, 
           font=("Times", 13),
           bg='#d47474').pack(side=RIGHT)
     frame_c = Frame(person_screen, bg="#d47474")
     frame_c.pack(side=TOP)
+    per_col, e_y, g_y, grade = person.get_attendance_info() 
     Label(frame_c, 
           text="College: ", 
           font=("Times", 13, "bold"),
           bg='#d47474').pack(side=LEFT)
     Label(frame_c, 
-          text=rec_person.get_college().short_name, 
+          text=per_col.short_name, 
           font=("Times", 13),
           bg='#d47474').pack(side=RIGHT)
     frame_bottom = Frame(person_screen, bg="#d47474")
     frame_bottom.pack(side=TOP, pady = 10)
     #college info part
     f_college_info = Frame(frame_bottom, bg="#d47474")
-    f_college_info.pack(side=LEFT)
+    f_college_info.pack(side=LEFT, padx = 15)
     Label(f_college_info, 
           text="More college info: ", 
           font=("Times", 12, "bold"),
           bg='#d47474').pack(side=TOP)
     Label(f_college_info, 
-          text="Enrollment year: " + str(rec_person.get_college_enroll()), 
+          text="Enrollment year: " + str(e_y), 
           font=("Times", 12),
           bg='#d47474').pack(side=TOP)
     Label(f_college_info, 
-          text="Graduate year: " + str(rec_person.get_college_graduate()), 
+          text="Graduate year: " + str(g_y), 
           font=("Times", 12),
           bg='#d47474').pack(side=TOP)
     Label(f_college_info, 
-          text="Grade: " + str(rec_person.get_college_grade()), 
+          text="Grade: " + str(grade), 
           font=("Times", 12),
           bg='#d47474').pack(side=TOP)
     #skills part
     f_skills = Frame(frame_bottom, bg="#d47474")
-    f_skills.pack(side=LEFT)
+    f_skills.pack(side=LEFT, padx = 15)
     Label(f_skills, 
               text="Skills: ", 
               font=("Times", 12, "bold"),
               bg='#d47474').pack(side=TOP)
-    list_skills = rec_person.skills
+    list_skills = person.skills
     for s in list_skills:
         Label(f_skills, 
               text=s, 
@@ -1244,12 +1280,12 @@ def person_info(rec_person, screen):
               bg='#d47474').pack(side=TOP)
     #hobbies part
     f_hobbies = Frame(frame_bottom, bg="#d47474")
-    f_hobbies.pack(side=LEFT)
+    f_hobbies.pack(side=LEFT, padx = 15)
     Label(f_hobbies, 
               text="Hobbies: ", 
               font=("Times", 12, "bold"),
               bg='#d47474').pack(side=TOP)
-    list_hobbies = rec_person.hobbies
+    list_hobbies = person.hobbies
     for h in list_hobbies:
         Label(f_hobbies, 
               text=h, 
@@ -1257,12 +1293,13 @@ def person_info(rec_person, screen):
               bg='#d47474').pack(side=TOP)
         
     Button(person_screen, text="Hide",
-           bg="#547fa3", height=2, width=10,
+           bg="#547fa3", height=1, width=10,
            command=person_screen_delete).pack(pady=30)    
 def person_screen_delete():
     person_screen.destroy()    
-    
-
+#-------------------------------------------------------------    
+def add_skills_hobbies(name, surname, gender, date, college, ey, gy, grade):
+    print(name, surname, gender, date, college, ey, gy, grade)
 #TODO - mjenjanje podataka
 
     

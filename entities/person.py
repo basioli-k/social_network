@@ -101,7 +101,9 @@ class Person:
                 personal_recommendation.append( Person(rec["name"], rec["surname"], rec["gender"], rec["date_of_birth"], rec["skills"], rec["hobbies"], rec["id"]) )
         
         db.close()
-
+        if len(personal_recommendation) == 0:
+            return self.get_business_recommendation(path, limit)
+            
         return personal_recommendation
         
     #POKOJNE IDEJE
@@ -162,6 +164,12 @@ class Person:
     #     return personal_recommendation
     
     @staticmethod
+    def get_max_id(path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            return session.run("MATCH (p:Person) RETURN MAX(p.id) as max_id;").single()["max_id"]
+        
+    @staticmethod
     def get_person_by_name_surname(user_name, user_surname, path = "../database/database.cfg"):
         db = Database.get_instance(path)
         with db.driver.session() as session:
@@ -173,13 +181,13 @@ class Person:
                 for per in result.data():
                     return Person(per["p"]["name"], per["p"]["surname"], 
                                   per["p"]["gender"], per["p"]["date_of_birth"], 
-                                  per["p"]["skills"], per["p"]["hobbies"])
+                                  per["p"]["skills"], per["p"]["hobbies"], per["p"]["id"])
     
     def get_attendance_info(self, path = "../database/database.cfg"):
         db = Database.get_instance(path)
         with db.driver.session() as session:
-            result = session.run("MATCH (:Person {id:$id})-[att:ATTENDED]-(c:College) RETURN c, att;", 
-                                 {"id" : self.id })
+            result = session.run("MATCH (p:Person {id: $id})-[att:ATTENDED]-(c:College) RETURN c, att;", 
+                                 {"id" : self.id} )
             if not result:
                 return None
             else:
@@ -231,7 +239,7 @@ class Person:
                 for per in result.data():
                     friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
                                                 per["friend"]["gender"], per["friend"]["date_of_birth"], 
-                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                                                per["friend"]["skills"], per["friend"]["hobbies"], per["friend"]["id"] ))                            
                 return friends_list                 
                                  
     def get_friends_by_sur_name(self, value = "", key = "" , path = "../database/database.cfg"):
@@ -246,7 +254,7 @@ class Person:
                 for per in result.data():
                     friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
                                                 per["friend"]["gender"], per["friend"]["date_of_birth"], 
-                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                                                per["friend"]["skills"], per["friend"]["hobbies"], per["friend"]["id"]  ))                           
                 db.close()
                 return friends_list  
                             
@@ -262,14 +270,14 @@ class Person:
                 for per in result.data():
                     friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
                                                 per["friend"]["gender"], per["friend"]["date_of_birth"], 
-                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                                                per["friend"]["skills"], per["friend"]["hobbies"], per["friend"]["id"]  ))                            
                 db.close()
                 return friends_list
 
     def get_friends_by_college_info(self, value = "", key = "" , path = "../database/database.cfg"):
         db = Database.get_instance(path)
         with db.driver.session() as session:
-            result = session.run(f"MATCH (p:Person {{name: $name, surname: $surname}})-[:IS_FRIEND]-(friend:Person)-[a:ATTENDED {{ {key} : $value}}]-(c:COLLEGE) RETURN friend;", 
+            result = session.run(f"MATCH (p:Person {{name: $name, surname: $surname}})-[:IS_FRIEND]-(friend:Person)-[a:ATTENDED {{ {key} : $value}}]-() RETURN friend;", 
                                  {"name" : self.name, "surname" : self.surname, "value" : value})
             friends_list = []
             if not result:
@@ -278,7 +286,7 @@ class Person:
                 for per in result.data():
                     friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
                                                 per["friend"]["gender"], per["friend"]["date_of_birth"], 
-                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                                                per["friend"]["skills"], per["friend"]["hobbies"], per["friend"]["id"]  ))                            
                 db.close()
                 return friends_list                            
                                  
@@ -294,12 +302,37 @@ class Person:
                 for per in result.data():
                     friends_list.append( Person(per["friend"]["name"], per["friend"]["surname"], 
                                                 per["friend"]["gender"], per["friend"]["date_of_birth"], 
-                                                per["friend"]["skills"], per["friend"]["hobbies"]) )                            
+                                                per["friend"]["skills"], per["friend"]["hobbies"], per["friend"]["id"] ))                            
                 db.close()
-                return friends_list                             
-                                 
-                                 
-                                 
+                return friends_list     
+                        
+    def make_friendship(self, person, path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[if:IS_FRIEND]-(friend:Person {name : $name_f,surname:  $surname_f}) RETURN if, count(if) as broj;",
+                                 {"name" : self.name, "surname" : self.surname, "name_f" : person.name, "surname_f" : person.surname})
+            data = result.single()
+            if not data:
+                #print("usla")
+                #not friends - continue
+                result = session.run("MATCH (p:Person {name: $name, surname: $surname}),(f:Person {name : $name_f,surname:  $surname_f}) CREATE (p)-[if:IS_FRIEND {start_date: date()}]->(f) RETURN if;",
+                                 {"name" : self.name, "surname" : self.surname, "name_f" : person.name, "surname_f" : person.surname})
+                if not result:
+                    db.close()
+                    return "Error - not added"
+                else:
+                    db.close()
+                    return True
+            else:
+                db.close()
+                return False
+'''
+    @staticmethod
+    def all_skills(path = "../database/database.cfg"):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run(                               
+'''                                
                                  
                                  
                                  
