@@ -175,49 +175,49 @@ class Person:
                                   per["p"]["gender"], per["p"]["date_of_birth"], 
                                   per["p"]["skills"], per["p"]["hobbies"])
     
-    def get_college(self, path = "../database/database.cfg"):
+    def get_attendance_info(self, path = "../database/database.cfg"):
         db = Database.get_instance(path)
         with db.driver.session() as session:
-            result = session.run("MATCH (p:Person {name: $name, surname: $surname})--(c:College) RETURN c;", 
-                                 {"name" : self.name, "surname" : self.surname})
+            result = session.run("MATCH (:Person {id:$id})-[att:ATTENDED]-(c:College) RETURN c, att;", 
+                                 {"id" : self.id })
             if not result:
                 return None
             else:
-                for coll in result.data():
-                    return College({"name" : coll["c"]["name"], 
-                                    "short_name" : coll["c"]["short_name"], 
-                                    "area" : coll["c"]["area"], "skills" : []})                          
+                coll, att = result.single()
+                return (College({"name" : coll["name"], "short_name" : coll["short_name"], 
+                                "area" : coll["area"], "skills" : coll["skills"]}),
+                        att["enrollment_year"], att["graduate_year"], att["grade"])                          
                                  
-    def get_college_enroll(self, path = "../database/database.cfg"):
-        db = Database.get_instance(path)
-        with db.driver.session() as session:
-            result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.enrollment_year", 
-                                 {"name" : self.name, "surname" : self.surname})
-            if not result:
-                return None
-            else:
-                for coll in result.data():                     
-                    return (coll["c.enrollment_year"])                          
-    def get_college_graduate(self, path = "../database/database.cfg"):
-        db = Database.get_instance(path)
-        with db.driver.session() as session:
-            result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.graduate_year", 
-                                 {"name" : self.name, "surname" : self.surname})
-            if not result:
-                return None
-            else:
-                for coll in result.data():                     
-                    return (coll["c.graduate_year"])                               
-    def get_college_grade(self, path = "../database/database.cfg"):
-        db = Database.get_instance(path)
-        with db.driver.session() as session:
-            result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.grade", 
-                                 {"name" : self.name, "surname" : self.surname})
-            if not result:
-                return None
-            else:
-                for coll in result.data():                     
-                    return (coll["c.grade"])                               
+    # def get_college_enroll(self, path = "../database/database.cfg"):
+    #     db = Database.get_instance(path)
+    #     with db.driver.session() as session:
+    #         result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.enrollment_year", 
+    #                              {"name" : self.name, "surname" : self.surname})
+    #         if not result:
+    #             return None
+    #         else:
+    #             for coll in result.data():                     
+    #                 return (coll["c.enrollment_year"])                          
+    # def get_college_graduate(self, path = "../database/database.cfg"):
+    #     db = Database.get_instance(path)
+    #     with db.driver.session() as session:
+    #         result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.graduate_year", 
+    #                              {"name" : self.name, "surname" : self.surname})
+    #         if not result:
+    #             return None
+    #         else:
+    #             for coll in result.data():                     
+    #                 return (coll["c.graduate_year"])                               
+    # def get_college_grade(self, path = "../database/database.cfg"):
+    #     db = Database.get_instance(path)
+    #     with db.driver.session() as session:
+    #         result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[c:ATTENDED]-() RETURN c.grade", 
+    #                              {"name" : self.name, "surname" : self.surname})
+    #         if not result:
+    #             return None
+    #         else:
+    #             for coll in result.data():                     
+    #                 return (coll["c.grade"])                               
                                  
     def get_all_friends(self, path = "../database/database.cfg"):
         db = Database.get_instance(path)
