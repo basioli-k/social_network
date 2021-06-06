@@ -14,18 +14,18 @@ import codecs
 import time
 import os.path
 
+POPULATION = 200
+
 MAX_GENERATING_TIME = 5
 
 MIN_BIRTH_DATE = datetime.date(1980, 1, 1)
 MAX_BIRTH_DATE = datetime.date(2000, 1, 1)
 MAX_DATE = datetime.date.today()
 
-MEAN_HOBBIES = 7
-SD_HOBBIES = 2
+MEAN_HOBBIES = 6
+SD_HOBBIES = 1
 MIN_HOBBIES = 4
 MAX_HOBBIES = 10
-
-MEAN_FRIENDS = 10
 
 MEAN_SKILLS = 2
 SD_SKILLS = 1
@@ -33,13 +33,14 @@ MIN_SKILLS = 0
 MAX_SKILLS = 5
 
 MEAN_COLLEGE_SKILLS = 7
-SD_COLLEGE_SKILLS = 2
+SD_COLLEGE_SKILLS = 3
 MIN_COLLEGE_SKILLS = 4
 MAX_COLLEGE_SKILLS = 10
 
-SD_GRADE = 1.5
+SD_GRADE = 0.5
+GRADE_MEAN_FACTOR = 3
 
-POPULATION = 200
+MEAN_FRIENDS = POPULATION * 0.05
 
 def get_truncated_normal(mean=0, sd=1, low=0, upp=10):
     return truncnorm(
@@ -77,8 +78,8 @@ def generate_person():
     normalSkills = get_truncated_normal(mean=MEAN_SKILLS, sd=SD_SKILLS, low=MIN_SKILLS, upp=MAX_SKILLS)
     normalHobbies = get_truncated_normal(mean=MEAN_HOBBIES, sd=SD_HOBBIES, low=MIN_HOBBIES, upp=MAX_HOBBIES)
     date_of_birth = random_date(MIN_BIRTH_DATE, MAX_BIRTH_DATE)
-    skills = random.sample(all_skills,int(normalSkills.rvs()))
-    hobbies = random.sample(hobbies_data,int(normalHobbies.rvs()))
+    skills = random.sample(all_skills,round(normalSkills.rvs()))
+    hobbies = random.sample(hobbies_data,round(normalHobbies.rvs()))
     return Person(name, surname, gender, date_of_birth, skills, hobbies)
 
 def generate_people(n):
@@ -103,23 +104,24 @@ def create_friendships(people):
     delete_file("../database/friendships.csv")
     friendCombinations = list (combinations(people, 2))
     random.shuffle(friendCombinations)
-    for i in range(POPULATION * MEAN_FRIENDS):
+    for i in range(round(POPULATION * MEAN_FRIENDS)):
         combination = friendCombinations[i]
         db_create_friendship(combination[0], combination[1])
 
 def db_create_attendence(person, college):
     enrollment_year = random.randint(person.date_of_birth.year + 18, MAX_DATE.year)
     graduate_year = enrollment_year + random.randint(5,10)
-    normalGrade = get_truncated_normal(mean= len(person.skills)/3.5 ,sd= SD_GRADE , low=2, upp=5)
+    normalGrade = get_truncated_normal(mean= len(person.skills)/GRADE_MEAN_FACTOR ,sd= SD_GRADE , low=2, upp=5)
     grade = round(normalGrade.rvs(), 2)
 
     print_to_file("../database/attendance.csv", "person_id,college_id,enrollment_year,graduate_year,grade", f"{person.id},{college.id},{enrollment_year},{graduate_year},{grade}")
 
 def create_attendence(people, colleges):
     delete_file("../database/attendance.csv")
+    normalSkills = get_truncated_normal(mean=MEAN_COLLEGE_SKILLS, sd=SD_COLLEGE_SKILLS, low=MIN_COLLEGE_SKILLS, upp=MAX_COLLEGE_SKILLS)
     for person in people:
         college = random.choice(colleges)
-        person.skills= list(set(person.skills).union(random.sample(college.skills,random.randint(MIN_COLLEGE_SKILLS,MAX_COLLEGE_SKILLS))))
+        person.skills= list(set(person.skills).union(random.sample(college.skills,round(normalSkills.rvs()))))
         db_create_attendence(person, college)
 
 def same_area(colleges):
