@@ -1,7 +1,38 @@
+Skip to content
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@antonelab 
+basioli-k
+/
+social_network
+1
+0
+0
+Code
+Issues
+Pull requests
+Actions
+Projects
+Wiki
+Security
+Insights
+social_network/gui/app.py /
+@basioli-k
+basioli-k changed import for tkinter
+Latest commit f98e615 1 hour ago
+ History
+ 3 contributors
+@antonelab@basioli-k@Krcivoj
+1433 lines (1315 sloc)  48.3 KB
+  
 """
 tab_...  = function to call screen...
 screen_... = tkinter window 
-
 tab_information = user info
 tab_friends = info about friends
 tab_rec = recommendation page
@@ -18,7 +49,7 @@ from tkcalendar import Calendar
 import datetime
 import os 
 from PIL import ImageTk, Image
-#from tkinter.ttk import *
+from tkinter import ttk
 
 #helping
 class ScrollableFrame(Frame):
@@ -1431,3 +1462,16 @@ def pop_screen_delete():
 
     
 main_window()
+© 2021 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+Loading complete
