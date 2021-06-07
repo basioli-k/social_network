@@ -43,7 +43,7 @@ Ove popularne društvene mreže danas broje stotine milijuna korisnika. Unatoč 
 Aspekt koji je gotovo uvijek zajednički je upravo spajanje korisnika. To će biti fokus ovog projekta. Potrebno je osmisliti kako reprezentirati korisnika i njegove veze sa ostalim korisnicima. Također korisnici će biti podijeljeni na smisleni način po edukaciji i njihovim vještinama.
 
 \subsection{Vrhovi}
-\subsubsection{Person}
+\subsubsection{Person}\label{sec:Person}
 Korisnik će u bazi podataka biti reprezentiran vrhom \emph{Person} sa sljedećim svojstvima:
 \begin{itemize}
 \begin{samepage}
@@ -98,7 +98,7 @@ Veza također nije usmjerena te dva fakulteta mogu biti povezana najviše jednom
 U konkretnoj bazi postoje samo tri područja.
 \\ \\
 \begin{center}
-    \includegraphics[scale=0.7]{slike/SAME_AREA.png}    
+    \includegraphics[scale=0.7]{slike/SAME_AREA.png}\label{fig:SAME_AREA}    
 \end{center}
 
 \subsubsection{ATTENDED}
@@ -118,8 +118,50 @@ Svojstva ove veze su:
 \newpage
 
 \section{Generiranje podataka}
+Nakon što smo osmislili strukturu podataka koju ćemo koristiti bilo je potrebno stvoriti podatke kako bismo "napunili" našu bazu podataka. Htjeli smo da generirani podaci budu realni kako bi što bolje reprezentirali stvarni svijet.Prilikom odabira skupa podataka na temelju kojih smo generirali bazu obratili smo pozornost da ne budu previše raznoliki ali opet dovoljno bogati da bi lakše i kvalitetnije testirali naše algoritme upita na bazu.
 \subsection{Izvori podataka}
+Na internetskoj stranici \url{https://gist.github.com/hrvojesimic/5dff7000b0920e65fb14b5c8867fa887} nalazi se popis sa gotovo tisuću petsto imena kojima je pridružena oznaka spola kojem ime pripada.Popis prezimena preuzeli smo sa internetske stranice \url{https://github.com/fondacija-glasnik/srpska-prezimena}.
+Kod odabira fakulteta koje će pohađati naši izmišljeni korisnici odlučili smo se razmatrati fakultete koji su dio Sveučilišta u Zagrebu. Kako bi naši podaci bili zanimljiviji odabrali smo po tri fakulteta iz tri različita područja znanosti. Područja kojima fakulteti pripadaju su:
+\begin{itemize}
+    \item Prirodoslovni
+    \item Društveni
+    \item Tehnički
+\end{itemize}
+Fakultete koje smo odabrali za svako područje možete vidjeti na slici \ref{fig:SAME_AREA}.
+Za svaki fakultet napisali smo niz vještina koje osoba može steći njegovim pohađanjem.
+Za kraj smo osmislili neki skup hobija kojima bi se naši korisnici mogli baviti.
 \subsection{Kako su podaci generirani}
+Kada smo prikupili i osmislili podatke bilo ih je potrebno pridružiti \emph{vrhovima} i \emph{bridovima}.
+Imena i prezimena smo na sjučajan način pridruživali osobama pazeći pritom da uređeni par $(ime,prezime)$ bude jedinstven kao što je rečeno u odjeljku \ref{sec:Person}. Spol osobe je dodjeljen ta temelju imena, zato nam je bilo korisno da se uz svako ime s popisa nalazi spol.
+Datum rođenja odabrali smo na slučajan način iz raspona 1.1.1980--1.1.2000. Za taj raspon smo se odlučili kako bi svi naši korisnici bili punoljetni te mogli pohađati fakultet.
+Za odabir broja hobija i vještina koje korisnik posjeduje koristili smo normalnu distribuciju.
+\begin{figure}
+    \centering
+    \includegraphics{slike/Hobbies_distribution.png}
+    \caption{Distribucija hobija}
+    \label{fig:hobbies}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics{slike/Skills_distribution.png}
+    \caption{Distribucija vještina}
+    \label{fig:skills}
+\end{figure}
+Kod odabira vještina pobrinuli smo se da većina vještina bude povezana s fakultetom kojeg osoba pohađa ili je pohađala a manji broj bude ne vezan uz fakultet. Na primjer student PMF-a može biti vješt u pisanju filmskih kritika iako je to vještina koju je moguče steči na FHS-u.
+
+Svaka osoba ima nekoliko nasumično odabranih prijatelja. Datum početka prijateljstva je nasumično odabran od trenutka kad su obje osobe napunile 18 godina do danas.
+
+Svaka osoba pohađa ili je pohađala slučajno odabrani fakultet fakultet. Osoba je fakultet upisala nakon što je napunila 18 godina i završila ga je u roku od 5 do 10 godina. Naravno ukoliko je osoba upisala fakultet prije dvije godine ona ga još nije stigla završiti te vrijednost \textbf{graduate\_year} nije postavljena.
+Za svaku osobu pamtimo njenu prosječnu ocjenu na fakultetu. Ocjena je broj između dva i pet zaokružen na dvije decimale. Vrijednost ocjene koju osoba ima dolazi iz normalne distribucije ali ovisi i o broju vještina koje posjeduje. Ukoliko osoba posjeduje vise vještina veće su šanse da ima bolju ocjenu.
+\begin{figure}
+    \centering
+    \includegraphics{slike/Grades.png}
+    \caption{Ovisnost ocjene o broju vještina}
+    \label{fig:hobbies}
+\end{figure}
+
+Funkcije koje stvaraju upravo opisane podatke nalaze se u datoteci \emph{db\_create.py}. 
+Te funkcije stvorene podatke zapisuju u \emph{.csv} datoteke kako bi ih kasnije mogli učitati u bazu podataka.  
 \newpage
 
 \section{Implementacija aplikacije i grafičko sučelje}
