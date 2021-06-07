@@ -309,7 +309,7 @@ def register():
     #frame for grade
     frame_grade = Frame(register_screen, bg="#206b71")
     frame_grade.pack(side=TOP)
-    Label(frame_grade, text="Grade:  * (from 1.00 to 5.00 decimal number)",
+    Label(frame_grade, text="Grade:  * (from 2.00 to 5.00 decimal number)",
           bg="#206b71", width=40, height=2, 
           font=("Times", 13, "bold")
           ).pack(side = LEFT)
@@ -1408,8 +1408,8 @@ def register_user(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollme
     #adding new person and relation is attending
     person = Person(u_name, u_surname, u_gender, datetime.date(int(u_birthday.split("-")[0]),int(u_birthday.split("-")[1]),int(u_birthday.split("-")[2])), skills, hobbies, Person.get_max_id()+1)
     person.add_person_to_db()
-    person.add_to_college(u_college, u_enrollment_year, u_graduate_year, u_grade)
-    pop_up("YOU ARE NOW REGISTERED. \n NOW LOGIN IN AT MAIN PAGE.")
+    person.add_to_college(u_college, u_enrollment_year, u_graduate_year, round(u_grade,2))
+    pop_up("YOU ARE NOW REGISTERED. \n NOW LOG IN AT MAIN PAGE.")
     
 # pop up window for friendships
 def pop_up(message):

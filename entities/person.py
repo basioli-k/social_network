@@ -113,12 +113,6 @@ class Person:
             return session.run("MATCH (p:Person) RETURN MAX(p.id) as max_id;").single()["max_id"]
     
     @staticmethod
-    def get_max_id(path = "../database/database.cfg"):
-        db = Database.get_instance(path)
-        with db.driver.session() as session:
-            return session.run("MATCH (p:Person) RETURN MAX(p.id) as max_id;").single()["max_id"]
-        
-    @staticmethod
     def get_person_by_name_surname(user_name, user_surname, path = "../database/database.cfg"):
         db = Database.get_instance(path)
         with db.driver.session() as session:
@@ -148,7 +142,7 @@ class Person:
     def get_all_friends(self, path = "../database/database.cfg"):
         db = Database.get_instance(path)
         with db.driver.session() as session:
-            result = session.run("MATCH (p:Person {name: $name, surname: $surname})--(friend:Person) RETURN friend;", 
+            result = session.run("MATCH (p:Person {name: $name, surname: $surname})-[:IS_FRIEND]-(friend:Person) RETURN friend;", 
                                  {"name" : self.name, "surname" : self.surname})
             friends_list = []
             if not result:
