@@ -9,11 +9,13 @@ tab_rec = recommendation page
 import sys
 sys.path.append('../database')
 sys.path.append('../entities')
+sys.path.append('../data_prep')
 from database import *
 from person import *
 from college import *
 from tkinter import *
 from tkcalendar import Calendar
+import datetime
 import os 
 from PIL import ImageTk, Image
 #from tkinter.ttk import *
@@ -211,6 +213,7 @@ def register():
           bg="#206b71", width=10, height=2, 
           font=("Times", 13, "bold")
           ).pack(side = LEFT)
+    global name
     name = StringVar()
     name_entry = Entry(frame_name, textvariable=name)
     name_entry.pack(side = LEFT)
@@ -218,6 +221,7 @@ def register():
           bg="#206b71", width=10, height=2, 
           font=("Times", 13, "bold")
           ).pack(side = LEFT)
+    global surname
     surname = StringVar()
     surname_entry = Entry(frame_name, textvariable=surname)
     surname_entry.pack(side = LEFT)
@@ -231,10 +235,11 @@ def register():
     #frame for radiobtns
     frame_btn_g = Frame(frame_g, bg="#206b71")
     frame_btn_g.pack(side=RIGHT)
+    global g
     g = StringVar()
     g.set("F")
     rbtn_f = Radiobutton(frame_btn_g,bg="#206b71", text="Female", variable=g, value="F")
-    rbtn_m = Radiobutton(frame_btn_g, bg="#206b71",text="Male", variable=g, value="G")
+    rbtn_m = Radiobutton(frame_btn_g, bg="#206b71",text="Male", variable=g, value="M")
     rbtn_f.pack(side=LEFT)
     rbtn_m.pack(side=RIGHT)
     #frame for birthday
@@ -244,10 +249,11 @@ def register():
           bg="#206b71", width=20, height=2, 
           font=("Times", 13, "bold")
           ).pack(side = TOP)
+    global cal
     cal = Calendar(frame_bd, selectmode = 'day',
                    year = 2000, month = 1, 
                    day = 1, date_pattern = 'y-mm-dd',
-                   minday= '1980-01-01', maxday='2000-01-01')
+                   mindate= datetime.date(1980,1,1), maxdate=datetime.date(2000,1,1))
     cal.pack(side=TOP)
     #frame for college
     frame_coll = Frame(register_screen, bg="#206b71")
@@ -259,6 +265,7 @@ def register():
     #frame for radiobtns
     frame_btn_c = Frame(frame_coll, bg="#206b71")
     frame_btn_c.pack(side=TOP)
+    global c
     c = StringVar()
     c.set("PMF")
     rbtn_1 = Radiobutton(frame_btn_c,bg="#206b71", text="PMF", variable=c, value="PMF")
@@ -269,7 +276,7 @@ def register():
     rbtn_6 = Radiobutton(frame_btn_c, bg="#206b71",text="FKIT", variable=c, value="FKIT")
     rbtn_7 = Radiobutton(frame_btn_c, bg="#206b71",text="FFZG", variable=c, value="FFZG")
     rbtn_8 = Radiobutton(frame_btn_c, bg="#206b71",text="FHS", variable=c, value="FHS")
-    rbtn_9 = Radiobutton(frame_btn_c, bg="#206b71",text="Pravo", variable=c, value="Pravo")
+    rbtn_9 = Radiobutton(frame_btn_c, bg="#206b71",text="Pravo", variable=c, value="pravo")
     rbtn_1.pack(side=LEFT)
     rbtn_2.pack(side=LEFT)
     rbtn_3.pack(side=LEFT)
@@ -286,11 +293,12 @@ def register():
           bg="#206b71", width=20, height=2, 
           font=("Times", 13, "bold")
           ).pack(side = LEFT)
-    ey = IntVar()
+    global ey
+    ey = StringVar()    #must be string because of problems with IntVar and default zero in the end
     ey_entry = Entry(frame_ey_gy, textvariable=ey, width=10)
     ey_entry.pack(side = LEFT)
-    
-    gy = IntVar()
+    global gy
+    gy = StringVar()
     gy_entry = Entry(frame_ey_gy, textvariable=gy, width=10)
     gy_entry.pack(side = RIGHT)
     Label(frame_ey_gy, text="Graduate year:  *",
@@ -305,52 +313,24 @@ def register():
           bg="#206b71", width=40, height=2, 
           font=("Times", 13, "bold")
           ).pack(side = LEFT)
-    grade = DoubleVar()
+    global grade
+    grade = StringVar()
     grade_entry = Entry(frame_grade, textvariable=grade, width=10)
     grade_entry.pack(side = LEFT)
-    '''
-    #frame for skills and hobbies
-    frame_last = Frame(register_screen, bg="#206b71")
-    frame_last.pack()
-    frame_skills = ScrollableFrame_min(frame_last)
-    frame_skills.pack(side=LEFT)
-    '''
-    Button(register_screen, bg="#547fa3", 
+    global btn_add
+    btn_add = Button(register_screen, bg="#547fa3", 
            text="Add skills and hobbies", width=20, height=2, 
            #TODO
-           command = lambda name=name.get(), surname=surname.get(), gender = g.get(),
-                            date = cal.get_date(), college = c.get(), 
-                            ey = ey.get(), gy = gy.get(), grade = grade.get(): 
-                            add_skills_hobbies(name, surname, gender, date, college, ey, gy, grade)
-           ).pack(side=BOTTOM,pady = 10)
+           #command = lambda name=name.get(), surname=surname.get(), gender = g.get(),
+           #                 date = cal.get_date(), college = c.get(), 
+           #                 ey = ey.get(), gy = gy.get(), grade = grade.get(): 
+           #                 add_skills_hobbies(name, surname, gender, date, college, ey, gy, grade)
+           command = add_skills
+           )
+    btn_add.pack(side=BOTTOM,pady = 10)
     
     register_screen.mainloop()
-    '''
-    frame_hobbies = ScrollableFrame_min(frame_last)
-    frame_hobbies.pack(side=RIGHT)
-    register_screen.mainloop()
-    '''
-    '''
-    # entry username
-    username_entry = Entry(frame, textvariable=username)
-    username_entry.pack()
-    # label for password
-    Label(register_screen, text="Password  *",
-          bg="white", width=17, height=2, 
-          font=("Times", 13)
-          ).pack()
-    # frame for entry
-    frame2 = Frame(register_screen, bg="white",bd=18)
-    frame2.pack()
-    # entry password
-    password_entry = Entry(frame2, textvariable=password, show= '*')
-    password_entry.pack()
     
-    Button(register_screen, bg="#547fa3", 
-           text="Register", width=10, height=2, 
-           command = register_user
-           ).pack(side=TOP)
-    '''
     
 # main window with login or register selection    
 def main_window():
@@ -899,35 +879,57 @@ def login_verify():
         login_ok()
 #-------------------------------------------------------------------------        
 # TODO:dodat dio za unos podataka i provjerit je li vec u bazi
-def register_user():
- 
-    username_info = username.get()
-    password_info = password.get()
-    
-    # if empty
-    if username_info == "" or password_info == "":
-        username_entry.delete(0, END)
-        password_entry.delete(0, END)
- 
-        Label(register_screen, 
-              text="All fields are required!", 
-              fg="#f78383", font=("calibri", 11)
-              ).pack(pady = 10)
+def add_hobbies(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollment_year, u_graduate_year, u_grade):
+    #print(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollment_year, u_graduate_year, u_grade)
+    skills = []
+    index = choice_skills.curselection()
+    for i in index:
+        skills.append(choice_skills.get(i))
+    if skills == []:
+        pop_up("You need to choose skills!")
+        return
     else:
-        file = open(username_info, "w")
-        file.write(username_info + "\n")
-        file.write(password_info)
-        file.close()
- 
-        username_entry.delete(0, END)
-        password_entry.delete(0, END)
+        yscrollbar.destroy()
+        frame_skills.destroy()
+        b.destroy()
         
-        Label(register_screen, bg="#acc4d7",
-              text="Registration Successfull. Close this window and log in.", 
-              fg="#206b71", font=("calibri", 11, "bold")
-              ).pack(pady = 10)
- 
+    #-----
+    import configparser, json
+    config = configparser.ConfigParser()
+    config.read("../data_prep/data.cfg", encoding='utf-8')
+    y = json.loads(config["data"]["hobbies"])
+    #--------
+    global frame_hobbies
+    frame_hobbies = Frame (frame_last, bg="#206b71")
+    frame_hobbies.pack(side=RIGHT, padx = 10)
+    global yscrollbar1
+    yscrollbar1 = Scrollbar(frame_hobbies)
+    yscrollbar1.pack(side = RIGHT, fill = Y)
+    global choice_hobbies
+    choice_hobbies = Listbox(frame_hobbies, selectmode = "multiple", 
+                            yscrollcommand = yscrollbar1.set)
+  
+    choice_hobbies.pack(padx = 10, pady = 10,
+          expand = YES, fill = "both")
     
+    
+    for each_item in range(len(y)):
+      
+        choice_hobbies.insert(END, y[each_item])
+  
+
+    yscrollbar1.config(command = choice_hobbies.yview)
+    global b2
+    b2 = Button(frame_last, bg="#547fa3", 
+           text="Register", width=10, height=2, 
+           command = lambda a1 = u_name, a2 = u_surname, 
+                            a3 = u_birthday, a4 = u_gender,
+                            a5 = u_college, a6 = u_enrollment_year,
+                            a7 = u_graduate_year, a8 = u_grade,
+                            a9 = skills: 
+                            register_user(a1, a2, a3, a4, a5, a6, a7, a8, a9)
+           )
+    b2.pack(side=RIGHT, pady = 10, padx=5)
 
 #-------------------------------------------------------- 
 # pop up window for user not found while logging in 
@@ -1298,9 +1300,134 @@ def person_info(person, screen):
 def person_screen_delete():
     person_screen.destroy()    
 #-------------------------------------------------------------    
-def add_skills_hobbies(name, surname, gender, date, college, ey, gy, grade):
-    print(name, surname, gender, date, college, ey, gy, grade)
-#TODO - mjenjanje podataka
+def add_skills():
+    
+    global frame_last    
+    u_name = name.get()
+    if not u_name.isalpha():
+        pop_up("Not valid name!")
+        return
+    u_surname = surname.get()
+    if not u_surname.isalpha():
+        pop_up("Not valid surname!")
+        return
+    
+    check = Person.get_person_by_name_surname(u_name, u_surname)
+    if check:
+        pop_up("Person is in database, please log in instead!")
+        return     
+    u_gender = g.get()
+    u_birthday = cal.get_date()    
+    u_college = c.get()
+    
+    u_e_year = ey.get()
+    if not u_e_year.isdigit():
+        pop_up("Not valid enrollment year!")
+        return
+    u_enrollment_year = int(u_e_year)
+    if int(u_birthday.split('-')[0])+18 > u_enrollment_year:
+        pop_up("Not valid enrollment year! \n You need to be of legal age to start college!")
+        return
+    if u_enrollment_year > 2021:
+        pop_up("Not valid enrollment year! \n You must be in college by now!")
+        return
+        
+    u_g_year = gy.get()
+    if not u_g_year.isdigit():
+        pop_up("Not valid graduate year!")  
+        return
+    u_graduate_year = int(u_g_year)
+    if u_graduate_year > u_enrollment_year + 10:
+        pop_up("Not valid graduate year! \n You studied more than 10 years!")
+        return
+    if u_graduate_year < u_enrollment_year + 5:
+        pop_up("Not valid graduate year! \n You studied less than 5 years!")
+        return
+    try:
+       u_grade = float(grade.get())
+       
+    except ValueError:
+        pop_up("Not valid format of grade! \n Make sure to write grade like x.yy!")
+        return 
+    
+    if u_grade < 2.00 or u_grade > 5.00:
+        pop_up("Not valid format of grade! \n Make sure to write grade like 2.00 <= x <= 5.00!")
+        return 
+    
+    btn_add.destroy()
+    
+    #frame for skills and hobbies
+    frame_last = Frame(register_screen, bg="#206b71")
+    frame_last.pack(side=TOP)
+    global frame_skills
+    frame_skills = Frame (frame_last, bg="#206b71")
+    frame_skills.pack(side=LEFT, padx = 10)
+    global yscrollbar
+    yscrollbar = Scrollbar(frame_last)
+    yscrollbar.pack(side = LEFT, fill = Y)
+    global choice_skills
+    choice_skills = Listbox(frame_skills, selectmode = "multiple", 
+                            yscrollcommand = yscrollbar.set)
+  
+    choice_skills.pack(padx = 10, pady = 10,
+          expand = YES, fill = "both")
+    x = College.get_all_skills_from_college(u_college)
+    
+    for each_item in range(len(x)):
+      
+        choice_skills.insert(END, x[each_item])
+  
+
+    yscrollbar.config(command = choice_skills.yview)
+    global b
+    b = Button(frame_last, bg="#547fa3", 
+           text="Next", width=10, height=2, 
+           command = lambda a1 = u_name, a2 = u_surname, 
+                            a3 = u_birthday, a4 = u_gender,
+                            a5 = u_college, a6 = u_enrollment_year,
+                            a7 = u_graduate_year, a8 = u_grade : 
+                            add_hobbies(a1, a2, a3, a4, a5, a6, a7, a8)
+           )
+    b.pack(side=RIGHT, pady = 10, padx=5)
+    
+    
+def register_user(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollment_year, u_graduate_year, u_grade, skills):
+    #print(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollment_year, u_graduate_year, u_grade, skills)
+    hobbies = []
+    index = choice_hobbies.curselection()
+    for i in index:
+        hobbies.append(choice_hobbies.get(i))
+    if hobbies == []:
+        pop_up("You need to choose hobbies!")
+        return
+    else:
+        yscrollbar1.destroy()
+        frame_hobbies.destroy()
+        b2.destroy()
+    
+    #adding new person and relation is attending
+    person = Person(u_name, u_surname, u_gender, datetime.date(int(u_birthday.split("-")[0]),int(u_birthday.split("-")[1]),int(u_birthday.split("-")[2])), skills, hobbies, Person.get_max_id()+1)
+    person.add_person_to_db()
+    person.add_to_college(u_college, u_enrollment_year, u_graduate_year, u_grade)
+    pop_up("YOU ARE NOW REGISTERED. \n NOW LOGIN IN AT MAIN PAGE.")
+    
+# pop up window for friendships
+def pop_up(message):
+    global pop_screen
+    pop_screen = Toplevel(register_screen)
+    pop_screen.title("Error")
+    pop_screen.geometry("450x100")
+    pop_screen.configure(bg='#f78383')
+    Label(pop_screen, 
+          text=message, 
+          font=("Times", 13, "bold"),
+          bg='#f78383').pack(pady=10)
+    Button(pop_screen, text="Try Again",
+           bg="#547fa3", 
+           command=pop_screen_delete).pack()
+    
+def pop_screen_delete():
+    pop_screen.destroy() 
 
     
 main_window()

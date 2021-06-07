@@ -244,15 +244,21 @@ class Person:
             else:
                 db.close()
                 return False
-'''
-    @staticmethod
-    def all_skills(path = "../database/database.cfg"):
+
+    def add_person_to_db(self,  path = "../database/database.cfg"):
         db = Database.get_instance(path)
         with db.driver.session() as session:
-            result = session.run(                               
-'''                                
-                                 
-                                 
+            result = session.run("CREATE (p:Person {name : $name, surname : $surname, date_of_birth : $date, gender : $g, skills : $skills, hobbies : $hobbies, id : $id})", 
+                                   {"name" : self.name, "surname" : self.surname, "g" : self.gender, "date" : self.date_of_birth, "skills" : self.skills, "hobbies" : self.hobbies, "id" : self.id})
+            db.close() 
+            return                       
+                              
+    def add_to_college(self, s_name, ey, gy, grade, path = "../database/database.cfg" ):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {id : $id}),(c:College {short_name : $s_name}) CREATE (p)-[:ATTENDED {enrollment_year : $ey, graduate_year : $gy, grade : $grade}]->(c);",
+                                 {"id" : self.id, "s_name" : s_name, "ey" : ey, "gy" : gy, "grade" : grade})                     
+            db.close()                     
                                  
                                  
                                  
