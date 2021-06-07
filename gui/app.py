@@ -18,7 +18,7 @@ from tkcalendar import Calendar
 import datetime
 import os 
 from PIL import ImageTk, Image
-#from tkinter.ttk import *
+from tkinter import ttk
 
 #helping
 class ScrollableFrame(Frame):
