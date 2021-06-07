@@ -20,11 +20,11 @@ if __name__ == "__main__":
 
 	d = Database.get_instance("../database/database.cfg")
 
-	for element in data:
-		colleges.append( College(element) )
+	# for element in data:
+	# 	colleges.append( College(element) )
 	
-	for college in colleges:
-		college.print_college()
+	# for college in colleges:
+	# 	college.print_college()
 
 	print("--------------------------------------------------------------------")
 	#pogledajte kolike presjeke imate
