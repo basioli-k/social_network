@@ -33,14 +33,14 @@
 
 \section{Uvod}
 Tema ovog projekta je modeliranje grafovske baze podataka za društvenu mrežu koristeći \emph{Neo4j}. Zadatak podrazumijeva odabir programskog jezika za izgradnju grafičkog sučelja, osmišljavanje i implementaciju struktura podataka potrebnih za pisanje kompleksnih upita te generiranje podataka i punjenje same baze. \\
-Projekt je u potpunosti izveden koristeći \emph{Python 3.9} programski jezik uz modul \emph{tkinter} za grafičko sučelje i modul \emph{neo4j} koji omogućava spajanje na bazu. \\
-U sklopu projekta potrebno je osmisliti upit za predlaganje osoba sličnih po obrazovanju i znanju te upit za predlaganje osoba po samostalno osmišljenom kriteriju.
+Projekt smo u potpunosti izveli koristeći \emph{Python 3.9} programski jezik uz modul \emph{tkinter} za grafičko sučelje i modul \emph{neo4j} koji omogućava spajanje na bazu. \\
+U sklopu projekta trebali smo osmisliti upit za predlaganje osoba sličnih po obrazovanju i znanju te upit za predlaganje osoba po samostalno osmišljenom kriteriju.
 
 \newpage
 \section{Struktura podataka}
 Prvi problem projekta je razrada struktura podataka kojima će društvena mreža biti modelirana. Kao inspiracija poslužile su nam društvene mreže kao što su \emph{Facebook}, \emph{Twitter}, \emph{Instagram}, \emph{LinkedIn} \dots \\
 Ove popularne društvene mreže danas broje stotine milijuna korisnika. Unatoč brojnim razlikama u suštini imaju sličnu poantu. Njihova zadaća je povezati korisnike. Ljudi koji koriste ove mreže mogu se međusobno dodavati za prijatelje, pratiti razne grupe, razmjenjivati poruke, dijeliti fotografije i slično. \\
-Aspekt koji je gotovo uvijek zajednički je upravo spajanje korisnika. To će biti fokus ovog projekta. Potrebno je osmisliti kako reprezentirati korisnika i njegove veze sa ostalim korisnicima. Također korisnici će biti podijeljeni na smisleni način po edukaciji i njihovim vještinama. \\
+Aspekt koji je gotovo uvijek zajednički je upravo spajanje korisnika. To će biti fokus ovog projekta. Trebamo osmisliti kako reprezentirati korisnika i njegove veze sa ostalim korisnicima. Također moramo ih smisleno podijeliti po edukaciji i njihovim vještinama. \\
 Grafovska baza sastavljena je od vrhova koji predstavljaju osobe i fakultete u danoj bazi te relacije koje predstavljaju njihove odnose.
 
 \subsection{Vrhovi}
@@ -81,29 +81,36 @@ Slično kao kod vrha \emph{Person} svojstvo \textbf{id} je jedinstveno. \\
 Važna pretpostavka ove baze je da je svaki njen korisnik pohađao fakultet. 
 \subsection{Relacije}
 \subsubsection{IS\_FRIEND}
-Očito važna relacija u ovoj bazi podataka je relacija \emph{IS\_FRIEND}. Ova relacija uspostavlja se između dva vrha sa oznakom \emph{Person} i govori da su ta dva korisnika prijatelji u ovoj društvenoj mreži. \\
+Očito važna relacija u ovoj bazi podataka je relacija \emph{IS\_FRIEND}. Ova relacija uspostavlja se između dva vrha sa oznakom \emph{Person} i ukazuje na to da su ta dva korisnika prijatelji u ovoj društvenoj mreži. \\
 Jedini atribut je:
 \begin{itemize}
 \begin{samepage}
     \item \textbf{start\_date} početak prijateljstva
 \end{samepage}
 \end{itemize}
-Veza nije usmjerena te između dva korisnika postoji najviše jedna veza. \\ \\
-\begin{center}
-    \includegraphics{slike/IS_FRIEND.png}
-\end{center}
+Veza nije usmjerena te između dva korisnika postoji najviše jedna ovakva veza. \\ \\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.7]{slike/IS_FRIEND.png}
+    \caption{Relacija \emph{IS\_FRIEND}}
+    \label{fig:friendship}
+\end{figure}
 
 \subsubsection{SAME\_AREA}
 Relacija \emph{SAME\_AREA} povezuje dva fakulteta koja spadaju u isto znanstveno područje. Ona služi za lakše povezivanje osoba sličnog obrazovanja. \\
 Veza također nije usmjerena te dva fakulteta mogu biti povezana najviše jednom ovakvom vezom. \\
 U konkretnoj bazi postoje samo tri područja.
 \\ \\
-\begin{center}
-    \includegraphics[scale=0.7]{slike/SAME_AREA.png}\label{fig:SAME_AREA}    
-\end{center}
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.7]{slike/SAME_AREA.png}
+    \caption{Relacija \emph{SAME\_AREA}}
+    \label{fig:area}
+\end{figure}
 
 \subsubsection{ATTENDED}
-Na kraju postoji i relacija \emph{ATTENDED}. Ovo je prva i jedina jednosmjerna relacija u bazi. Predstavlja vezu između korisnika i fakulteta. Ukoliko se ova dva vrha povezana bridom \emph{ATTENDED} to znači da korisnik pohađa ovaj fakultet. \\
+Na kraju postoji i relacija \emph{ATTENDED}. Ovo je prva i jedina usmjerena relacija u bazi. Predstavlja vezu između korisnika i fakulteta. Ukoliko se ova dva vrha povezana bridom \emph{ATTENDED} to znači da korisnik pohađa ovaj fakultet. \\
 Svojstva ove veze su:
 \begin{itemize}
 \begin{samepage}
@@ -112,10 +119,12 @@ Svojstva ove veze su:
     \item \textbf{grade} prosjek ocjena dosadašnjeg studija
 \end{samepage}
 \end{itemize}
-\begin{center}
-    \includegraphics{slike/ATTENDED.png}    
-\end{center}
-
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.7]{slike/ATTENDED.png}
+    \caption{Relacija \emph{ATTENDED}}
+    \label{fig:attendance}
+\end{figure}
 \newpage
 
 \section{Generiranje podataka}
@@ -166,7 +175,7 @@ Te funkcije stvorene podatke zapisuju u \emph{.csv} datoteke kako bi ih kasnije 
 \newpage
 
 \section{Implementacija aplikacije i grafičko sučelje}
-Kao što je već spomenuto za izgradnju aplikacije korišten je programski jezik \emph{Python} zbog velikog broja modula koje posjeduje i jednostavnosti korištenja tih modula. \\
+Kao što je već spomenuto za izgradnju aplikacije koristili smo programski jezik \emph{Python} zbog velikog broja modula koje posjeduje i jednostavnosti korištenja tih modula. \\
 Za interakciju sa bazom korišten je modul \emph{neo4j} dok se grafičko sučelje izgradilo sa modulom \emph{tkinter}.
 \subsection{Modul neo4j}
 Među nekoliko postojećih \emph{Python} modula za \emph{Neo4j} odabrali smo modul \emph{neo4j}. Ovaj modul podržan je od strane \emph{Neo4j} baze podataka što stoji i u dokumentaciji.\\
@@ -240,12 +249,12 @@ Na ovaj način osigurano je jednostavno punjenje baze podataka za svakog korisni
 \section{Preporuke}
 Postoje različiti načina stvaranja preporuka korisniku. Mnoge društvene mreže korisne razne alate i strojno učenje kako bi smislili najbolje moguće preporuke svojim korisnicima.
 Neke od ovih društvenih mreža nerijetko se nalaze i u problemima s privatnosti zbog iznenađujuće preciznih preporuka.
-Neki misle da ti algoritmi koriste informacije za koje korisnik nikad eksplicitno ne da dopuštenje kao što je lokacija. \\
+Postoje mišljenja da ti algoritmi koriste informacije za koje korisnik nikad eksplicitno ne da dopuštenje kao što je lokacija. \\
 Ovaj projekt srećom koristi generirane podatke te izbjegava probleme privatnosti. Cilj nije složiti model koji će učiti preferencije korisnika već iskoristiti grafovsku strukturu podataka kako bi po vezama između korisnika mogli dati što bolju preporuku po predodređenim kriterijima. \\
-Slijede neke, možda očite, metode preporučivanja zaključno sa implementiranim algoritmima preporučavanja.
+Slijede neke, možda očite, metode preporučivanja zaključno sa implementacijom naših algoritama preporučavanja.
 
 \subsection*{Preporuke po broju zajedničkih prijatelja}
-Najjednostavniji način za dobiti broj zajedničkih prijatelja je poprilično izravan. Korisnik za preporuku dobija upravo one ljude s kojima ima najviše zajedničkih prijatelja. \\
+Najjednostavniji način za dobiti preporuku je poprilično izravan. Korisnik za preporuku dobija upravo one ljude s kojima ima najviše zajedničkih prijatelja. \\
 U bazi \emph{neo4j} sljedećim upitom moguće je dobiti zajedničke prijatelje dva korisnika:
 \begin{samepage}
 \begin{minted}[tabsize=1,breaklines]{mysql}
@@ -255,16 +264,19 @@ WHERE p.id <> potential_friend.id AND NOT ((p)-[:IS_FRIEND]-(potential_friend))
 RETURN p, common, potential_friend,i,j;
 \end{minted}
 \end{samepage}
-\begin{center}
+\begin{figure}[h]
+    \centering
     \includegraphics[scale=0.7]{slike/common_friends_query.png}
-\end{center}
+    \caption{Zajednički prijatelji}
+    \label{fig:common_friends}
+\end{figure}
 
 \subsection*{Preporuke po utjecaju}
-Slično kao u prethodnom primjeru i ovdje dolazi do preporuke po zajedničkom broju prijatelja. Ipak, u ovoj metodi situacija je nešto drugačija. \\
+Slično kao u prethodnom primjeru i ovdje dolazi do preporuke po zajedničkim prijateljima. Ipak, u ovoj metodi situacija je nešto drugačija. \\
 Pretpostavimo da imamo korisnika \emph{p} i korisnika \emph{potential\_friend} koji imaju zajedničke prijatelje, ali nisu međusobno prijatelji. \\
 Pretpostavimo da su njihovi zajednički prijatelji $commons = \{c_1, c_2, \dots, c_n\}$ za koje je $friends\_num(c_i)$ jednak broju prijatelja koje korisnik $c_i$ ima. \\
 Što korisnik $c_i$ ima manji broj prijatelja smatran je korisnikom koji je selektivniji u izboru svojih prijatelja. Ponekad ima smisla da veću težinu donosi selektivnija osoba zato što je izglednije da ima osobnu vezu sa korisnikom. \\
-Korisniku $potential\_friend$ dodjeljuje se ocjena izračunata kao suma recipročnih $friends\_num(c_i)$ gdje su $c_i$ zajednički prijatelji korisnika $p$ i korisnika $potential\_friend$. \\
+Korisniku $potential\_friend$ dodjeljuje se ocjena izračunata kao suma recipročnih vrijednosti $friends\_num(c_i)$ gdje su $c_i$ zajednički prijatelji korisnika $p$ i korisnika $potential\_friend$. \\
 Formula za izračun ocjene izgleda ovako:
 \begin{equation*}
     rating(potential\_friend) = \sum_{c \in commons} \frac{1}{friends\_num(c)}
@@ -287,7 +299,7 @@ RETURN SUM(1.0/friends_num) AS rating, potential_friend;
 
 \subsection*{Klasifikacijske preporuke}
 Ovakav tip preporuka gleda zajednička svojstva dva korisnika i na temelju toga donosi odluku tko je kome najsličniji. \\
-Za ovu bazu zajedničko svojstvo korisnika može biti fakultet koji oba korisnika pohađaju, a moguće ih je poredati po broju istih vještina koje imaju. Ovakva preporuka ima smisla zato što je logično da će se ljudi sa istog fakulteta poznavati te da je veća vjerojatnost da će se željeti sprijateljiti ako su njihove vještine iste. \\
+Za ovu bazu zajedničko svojstvo korisnika može biti fakultet koji oba korisnika pohađaju, a moguće ih je poredati po broju istih vještina koje imaju. Ovakva preporuka ima smisla zato što je logično da će se ljudi sa istog fakulteta poznavati te da je veća vjerojatnost da će se željeti sprijateljiti ako su njihove vještine slične. \\
 \newpage
 Primjer upita koji prikazuje sve studente na jednom fakultetu:
 
@@ -299,9 +311,12 @@ RETURN p, c, att LIMIT 10;
 \end{samepage}
 
 Rezultat istog upita:
-\begin{center}
+\begin{figure}[h]
+    \centering
     \includegraphics[scale=0.7]{slike/same_college.png}
-\end{center}
+    \caption{Studenti \emph{TVZ}-a}
+    \label{fig:common_friends}
+\end{figure}
 
 Ovo su neke od metoda koje se mogu koristiti za preporuke u društvenim mrežama te su poslužile kao inspiracija za upite kojima aplikacija predlaže korisnicima njihove potencijalne prijatelje. \\
 Dio projekta bio je osmisliti upite koji će predlagati prijatelje na temelju znanja i obrazovanja te za osobne preporuke.
@@ -311,7 +326,7 @@ Dio projekta bio je osmisliti upite koji će predlagati prijatelje na temelju zn
 Izglednije je da će korisnik dodati osobu sličnih vještina zbog mogućnosti suradnje. Ovo podosta zvuči kao klasifikacijska preporuka, no je li moguće dodatno personalizirati preporuke na temelju postojećih informacija? \\
 Očito je korisniku važno upoznati ljude sa srodnih fakulteta. To će biti prvi filter preporuka.\\
 Upit je prezentiran u koracima. \\
-U idućem upitu primjetite nizove znakova nakon dolara. To su vrijednosti koje korisnik predaje prilikom slanja upita. Ako je aplikaciju  uključila osoba sa identifikacijskim brojem $14$ tada će se idući upit izvršiti s tim identifikacijskim brojem.
+U idućem upitu primjetite nizove znakova nakon dolara. To su vrijednosti koje korisnik predaje prilikom slanja upita. Ako je aplikaciju uključila osoba sa identifikacijskim brojem $14$ tada će se idući upit izvršiti s tim identifikacijskim brojem.
 
 \begin{samepage}
 \begin{minted}[tabsize=1,breaklines]{mysql}
@@ -327,7 +342,7 @@ S druge strane iskusnija osoba mari manje za to i više ju zanimaju vještine ko
 Dakle idući filter za mlade ljude bit će razlika u godinama, što je manja izglednije je da će joj se ta osoba preporučiti dok će za starije ljude filter biti presjek istih vještina koje osoba ima. \\
 Sada kada su preporuke dodatno sužene, ako je to potrebno, opet po godištu dodajemo nove filtere. \\
 U ovom slučaju ćemo zamijeniti uloge. Mlađi ljudi će sada u svojem popisu preporuka imati ljude sličnog godišta pa će se te preporuke filtrirati po presjeku vještina zato što je izglednije da će mladi ljudi htjeti dodati osobu zainteresiranu za njihovo područje. \\
-Starijim korisnicima filter će djelovati suprotno od filtera za mlađe korisnike. Prvo će poredati preporuke po razlici u godinama kako bi preporučili korisnicima najiskusnije ljude iz njihovog područja. \\
+Starijim korisnicima filter će djelovati suprotno od filtera za mlađe korisnike. Preporuke će poredati po razlici u godinama kako bi im predstavili najiskusnije ljude iz njihovog područja. \\
 Slijedi nastavak na prethodni komad koda sastavljen od navedena dva filtera za starije korisnike:
 \begin{samepage}
 \begin{minted}[tabsize=1,breaklines]{mysql}
@@ -341,9 +356,13 @@ ORDER BY birth_delta DESC LIMIT $limit;
 \newpage
 Rezultat sljedećeg upita za korisnicu Lori Vulin vidljiv je na grafičkom sučelju:
 
-\begin{center}
+\begin{figure}[h]
+    \centering
     \includegraphics[scale=0.19]{slike/business.jpg}
-\end{center}
+    \caption{Poslovne preporuke}
+    \label{fig:business_rec}
+\end{figure}
+
 
 \subsection{Osobne preporuke}
 Slično kao poslovne preporuke osobne preporuke se odvijaju u nekoliko koraka. \\
@@ -380,19 +399,25 @@ ORDER BY common DESC LIMIT $limit;
 \newpage
 \begin{samepage}
 Rezultate upita moguće je vidjeti na grafičkom sučelju:
-\begin{center}
+\begin{figure}[h]
+    \centering
     \includegraphics[scale=0.19]{slike/personal.jpg}
-\end{center}
+    \caption{Osobne preporuke}
+    \label{fig:personal_rec}
+\end{figure}
 \end{samepage}
 
 \subsection{Brzina izvršavanja upita}
 Zanimljiva stvar koja je uočena prilikom stvaranja aplikacije je neovisnost trajanja upita o veličini baze. Odabrani su najsloženiji upiti, što su upravo upiti za preporučavanje prijatelja te se \emph{Pythonovom} bibliotekom \emph{time} mjerilo vrijeme izvršavanja svakog upita. \\
 Napravljeno je po deset baza za svaku od veličina iz skupa $\{50, 100, 150, \dots, 1000\}$ gdje elementi skupa predstavljaju broj osoba koji se nalaze u bazi podataka. Za svaku od tih baza upit je poslan za tri nasumično odabrana korisnika te su dobijeni sljedeći rezultati.\\
 
-\begin{center}
+\begin{figure}[h]
+    \centering
     \includegraphics[scale=0.5]{slike/personal_graph.png}
     \includegraphics[scale=0.5]{slike/business_graph.png}
-\end{center}
+    \caption{Brzina upita}
+    \label{fig:query_speed}
+\end{figure}
 
 
 Iznenađujuće vrijeme izvršavanja upita ostaje konstantno te traje nešto više od dvije sekunde. \\
