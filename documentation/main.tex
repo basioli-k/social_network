@@ -23,9 +23,56 @@
         Ivan Krcivoj }
 \date{Lipanj 2021}
 
+\makeatletter         
+\def\@maketitle{
+\raggedright
+\includegraphics[width = 40mm]{logo.jpg}\\[8ex]
+\begin{center}
+{\Huge \bfseries \sffamily \@title }\\[4ex] 
+{\Large  \@author}\\[4ex] 
+\@date\\[8ex]
+\includegraphics[width = 40mm]{image.png}
+\end{center}}
+\makeatother
+
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\center
+\textsc{\Large Prirodoslovno-matematički fakultet}\\[1.5cm] % Name of your university/college
+\textsc{\large Matematički odsjek}\\[0.5cm] % Major heading such as course name
+\textsc{\large Napredne baze podataka}\\[0.5cm] 
+
+\HRule \\[0.4cm]
+{ \Large \bfseries Modeliranje grafovske baze podataka za društvenu mrežu - \emph{Neo4j}}\\[0.4cm] 
+\HRule \\[1.5cm]
+ 
+
+\begin{minipage}{0.4\textwidth}
+\begin{flushleft} \large
+\emph{Autori:}\\
+Karlo \textsc{Basioli} \\
+Antonela \textsc{Bogdanić} \\
+Ivan \textsc{Krcivoj}
+\end{flushleft}
+\end{minipage}
+~
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Mentor:} \\
+Ognjen \textsc{Orel} % Supervisor's Name
+\end{flushright}
+\end{minipage}\\[2cm]
+
+{\large Lipanj 2021}\\[2cm] 
+
+\includegraphics[scale=0.8]{slike/pmf_logo.jpg}\\
+
+\vfill 
+
+\end{titlepage}
 
 \tableofcontents
 
@@ -60,7 +107,7 @@ Korisnik će u bazi podataka biti reprezentiran vrhom \emph{Person} sa sljedeći
 Svaki \emph{id} postavljen je prilikom generiranja koda te je postavljen kao jedistven u bazi naredbom:
 %TODO vidi kako ovo popraviti
 \begin{samepage}
-\begin{minted}[tabsize=1,breaklines]{mysql}
+\begin{minted}[tabsize=1,breaklines]{java}
 CREATE CONSTRAINT personIdConstraint ON (person:Person) ASSERT person.id IS UNIQUE;
 \end{minted}
 \end{samepage}
@@ -218,7 +265,7 @@ def query_database(cypher_query, args_dict, path_to_cfg):
 \end{samepage}
 Veliki izazov korištenja ovog modula i projekta općenito bilo je osmisliti kako puniti bazu sa generiranim podacima. Kao što je već spomenuto generirani podaci spremani su u \emph{.csv} datoteke. \\
 Deklarativni jezik \emph{cypher} podržava naredbu: 
-\begin{minted}{mysql}
+\begin{minted}{java}
 LOAD CSV
 \end{minted}
 Ova naredba omogućava jednostavno učitavanje \emph{.csv} datoteka. Kako bi bilo omogućeno što jednostavnije punjenje baze za različite korisnike ove datoteke se pokretanjem \emph{Python} skripte šalju u \emph{import} direktorij čiji je \emph{path} potrebno zapisati u \emph{database.cfg} datoteku. \\
@@ -257,7 +304,7 @@ Slijede neke, možda očite, metode preporučivanja zaključno sa implementacijo
 Najjednostavniji način za dobiti preporuku je poprilično izravan. Korisnik za preporuku dobija upravo one ljude s kojima ima najviše zajedničkih prijatelja. \\
 U bazi \emph{neo4j} sljedećim upitom moguće je dobiti zajedničke prijatelje dva korisnika:
 \begin{samepage}
-\begin{minted}[tabsize=1,breaklines]{mysql}
+\begin{minted}[tabsize=1,breaklines]{java}
 MATCH (p:Person {id:72})-[i:IS_FRIEND]-(common:Person)-[j:IS_FRIEND]-
 (potential_friend:Person {id: 83}) 
 WHERE p.id <> potential_friend.id AND NOT ((p)-[:IS_FRIEND]-(potential_friend)) 
@@ -286,7 +333,7 @@ Dobro je primjetiti da je razlomak u gornjem izrazu uvijek dobro definiran pošt
 Slijedi upit kojim bi se izračunao \emph{rating} korisnika u \emph{cypheru}.
 
 \begin{samepage}
-\begin{minted}[tabsize=1,breaklines]{mysql}
+\begin{minted}[tabsize=1,breaklines]{java}
 MATCH (p:Person {id:72})-[:IS_FRIEND]-(common:Person)-[:IS_FRIEND]-
 (potential_friend:Person {id: 83}) 
 WHERE p.id <> potential_friend.id AND NOT ((p)-[:IS_FRIEND]-(potential_friend)) 
@@ -304,7 +351,7 @@ Za ovu bazu zajedničko svojstvo korisnika može biti fakultet koji oba korisnik
 Primjer upita koji prikazuje sve studente na jednom fakultetu:
 
 \begin{samepage}
-\begin{minted}[tabsize=1,breaklines]{mysql}
+\begin{minted}[tabsize=1,breaklines]{java}
 MATCH (p:Person)-[att:ATTENDED]->(c:College {short_name: "TVZ"})
 RETURN p, c, att LIMIT 10;
 \end{minted}
@@ -329,7 +376,7 @@ Upit je prezentiran u koracima. \\
 U idućem upitu primjetite nizove znakova nakon dolara. To su vrijednosti koje korisnik predaje prilikom slanja upita. Ako je aplikaciju uključila osoba sa identifikacijskim brojem $14$ tada će se idući upit izvršiti s tim identifikacijskim brojem.
 
 \begin{samepage}
-\begin{minted}[tabsize=1,breaklines]{mysql}
+\begin{minted}[tabsize=1,breaklines]{java}
 MATCH (p:Person {id:$id})-[:ATTENDED]->(:College)-[:SAME_AREA]-
 (:College)<-[:ATTENDED]-(recommendation:Person)
 WHERE p.id <> recommendation.id AND NOT((p)-[:IS_FRIEND]-(recommendation))
@@ -345,7 +392,7 @@ U ovom slučaju ćemo zamijeniti uloge. Mlađi ljudi će sada u svojem popisu pr
 Starijim korisnicima filter će djelovati suprotno od filtera za mlađe korisnike. Preporuke će poredati po razlici u godinama kako bi im predstavili najiskusnije ljude iz njihovog područja. \\
 Slijedi nastavak na prethodni komad koda sastavljen od navedena dva filtera za starije korisnike:
 \begin{samepage}
-\begin{minted}[tabsize=1,breaklines]{mysql}
+\begin{minted}[tabsize=1,breaklines]{java}
 WITH p, recommendation, size([x IN p.skills WHERE x IN recommendation.skills]) AS common_skills 
 ORDER BY common_skills DESC LIMIT $first_limit
 RETURN recommendation, abs(p.date_of_birth.year - recommendation.date_of_birth.year) AS birth_delta 
@@ -363,12 +410,11 @@ Rezultat sljedećeg upita za korisnicu Lori Vulin vidljiv je na grafičkom suče
     \label{fig:business_rec}
 \end{figure}
 
-
 \subsection{Osobne preporuke}
 Slično kao poslovne preporuke osobne preporuke se odvijaju u nekoliko koraka. \\
 Prvi korak je odabir osoba sa najviše zajedničkih prijatelja kako bi postojala veća vjerojatnost poznanstva.
 \begin{samepage}
-\begin{minted}[tabsize=1,breaklines]{mysql}
+\begin{minted}[tabsize=1,breaklines]{java}
 MATCH (p:Person {id:$id})-[:IS_FRIEND]-(:Person)-[:IS_FRIEND]-(recommendation:Person)
 WHERE p.id <> recommendation.id AND NOT((p)-[:IS_FRIEND]-(recommendation))
 WITH p, recommendation, count(recommendation) AS common_friends
@@ -378,7 +424,7 @@ ORDER BY common_friends DESC LIMIT $first_limit
 \end{samepage}
 Ovoga puta je drugi korak za sve isti. Ljudi se češće druže sa ljudima svojeg godišta pa idući filter odabire najbliže ljude po godištu:
 \begin{samepage}
-\begin{minted}[tabsize=1,breaklines]{mysql}
+\begin{minted}[tabsize=1,breaklines]{java}
 WITH p, recommendation, abs(recommendation.date_of_birth.year - p.date_of_birth.year) AS birth_delta 
 ORDER BY birth_delta LIMIT $second_limit
 
@@ -390,7 +436,7 @@ Očito može biti važno da ljudi imaju iste vještine s obzirom da iz toga čes
 Ako se dvoje ljudi bavi istom aktivnosti u slobodno vrijeme izgledno je da bi se mogli slagati ili se već poznaju. \\
 Ovime se finalizira upit koji za osobne preporuke ljudima:
 \begin{samepage}
-\begin{minted}[tabsize=1,breaklines]{mysql}
+\begin{minted}[tabsize=1,breaklines]{java}
 RETURN recommendation, size([skill IN p.skills WHERE skill IN recommendation.skills]) + size([hobby IN p.hobbies WHERE hobby IN recommendation.hobbies]) AS common 
 ORDER BY common DESC LIMIT $limit;
 
