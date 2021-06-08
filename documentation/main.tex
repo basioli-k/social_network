@@ -237,7 +237,7 @@
 	Kao što je već spomenuto za izgradnju aplikacije koristili smo programski jezik \emph{Python} zbog velikog broja modula koje posjeduje i jednostavnosti korištenja tih modula. \\
 	Za interakciju sa bazom korišten je modul \emph{neo4j} dok se grafičko sučelje izgradilo s modulom \emph{tkinter}.
 	\subsection{Modul neo4j}
-	Među nekoliko postojećih \emph{Python} modula za \emph{Neo4j} odabrali smo modul \emph{neo4j}. Ovaj modul podržan je od strane \emph{Neo4j} baze podataka što stoji i u dokumentaciji.\\
+	Među nekoliko postojećih \emph{Python} modula za \emph{Neo4j} odabrali smo modul \emph{neo4j}. Ovaj modul podržan je od strane \emph{Neo4j} baze podataka što stoji i u dokumentaciji \cite{neo4j-python}.\\
 	Za projekt je napravljena klasa \emph{Database} kao \emph{singleton} kako se ne bi nepotrebno stvarao preveliki broj različitih \emph{drivera}.
 	
 	\begin{samepage}
@@ -275,6 +275,7 @@
 			#obrada dobijenih rezultata
 		\end{minted}
 	\end{samepage}
+	\
 	Veliki izazov korištenja ovog modula i projekta općenito bilo je osmisliti kako puniti bazu sa generiranim podacima. Kao što je već spomenuto generirani podaci spremani su u \emph{.csv} datoteke. \\
 	Deklarativni jezik \emph{cypher} podržava naredbu: 
 	\begin{minted}{java}
@@ -491,27 +492,30 @@
 		\end{minted}
 	\end{samepage}
 	\newpage
-	Rezultat sljedećeg upita za korisnicu Lori Vulin vidljiv je na grafičkom sučelju:
-	
-	\begin{figure}[h]
-		\centering
-		\includegraphics[scale = 0.55]{slike/business.jpg}
-		\caption{Poslovne preporuke}
-		\label{fig:business_rec}
-	\end{figure}
-	
-	\subsection{Osobne preporuke}
-	Slično kao poslovne preporuke osobne preporuke se odvijaju u nekoliko koraka. \\
-	Prvi korak je odabir osoba sa najviše zajedničkih prijatelja kako bi postojala veća vjerojatnost poznanstva.
-	\begin{samepage}
-		\begin{minted}[tabsize=1,breaklines]{java}
-			MATCH (p:Person {id:$id})-[:IS_FRIEND]-(:Person)-[:IS_FRIEND]-(recommendation:Person)
-			WHERE p.id <> recommendation.id AND NOT((p)-[:IS_FRIEND]-(recommendation))
-			WITH p, recommendation, count(recommendation) AS common_friends
-			ORDER BY common_friends DESC LIMIT $first_limit
-			
-		\end{minted}
-	\end{samepage}
+    \begin{samepage}
+    Rezultat sljedećeg upita za korisnicu Lori Vulin vidljiv je na grafičkom sučelju:
+    
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[scale=0.4]{slike/business.jpg}
+        \caption{Poslovne preporuke}
+        \label{fig:business_rec}
+    \end{figure}
+    
+    \subsection{Osobne preporuke}
+    Slično kao poslovne preporuke osobne preporuke se odvijaju u nekoliko koraka. \\
+    Prvi korak je odabir osoba sa najviše zajedničkih prijatelja kako bi postojala veća vjerojatnost poznanstva.
+    \begin{samepage}
+    \begin{minted}[tabsize=1,breaklines]{java}
+    MATCH (p:Person {id:$id})-[:IS_FRIEND]-(:Person)-[:IS_FRIEND]-(recommendation:Person)
+    WHERE p.id <> recommendation.id AND NOT((p)-[:IS_FRIEND]-(recommendation))
+    WITH p, recommendation, count(recommendation) AS common_friends
+    ORDER BY common_friends DESC LIMIT $first_limit
+    
+    \end{minted}
+    \end{samepage}
+    
+    \end{samepage}
 	Ovoga puta je drugi korak za sve isti. Ljudi se češće druže sa ljudima svojeg godišta pa idući filter odabire najbliže ljude po godištu:
 	\begin{samepage}
 		\begin{minted}[tabsize=1,breaklines]{java}
@@ -537,7 +541,7 @@
 		Rezultate upita moguće je vidjeti na grafičkom sučelju:
 		\begin{figure}[h]
 			\centering
-			\includegraphics[scale=0.55]{slike/personal.jpg}
+			\includegraphics[scale=0.4]{slike/personal.jpg}
 			\caption{Osobne preporuke}
 			\label{fig:personal_rec}
 		\end{figure}
@@ -556,23 +560,10 @@
 	\end{figure}
 	
 	
-	Iznenađujuće vrijeme izvršavanja upita ostaje konstantno te traje nešto više od dvije sekunde. \\
-	Iako na prvu ruku rezultat izgleda neočekivano razlog u tome nalazimo na naviku korištenja relacijskih baza podataka gdje bi za većinu ovakvih upita bilo potrebno raditi Kartezijev produkt tablica za što je prirodno očekivati da će rastom veličine tablice trebati puno više vremena. \\
-	Međutim ovdje ne dolazi do Kartezijevog produkta već se pretraživanje odvija grafovskim algoritmima što daje veliko ubrzanje 
+	Iznenađujuće, vrijeme izvršavanja upita ostaje konstantno te traje nešto više od dvije sekunde. \\
+	Iako na prvu ruku rezultat izgleda neočekivano razlog u tome nalazimo na naviku korištenja relacijskih baza podataka. Tamo bi bilo potrebno raditi Kartezijev produkt tablica što bi dovelo do značajno sporijeg vremena izvršavanja. Dobro je napomenuti da bi i taj upit bio značajno kompliciraniji i manje čitak. \\
+	Međutim ovdje ne dolazi do Kartezijevog produkta već se pretraživanje odvija grafovskim algoritmima što daje veliko ubrzanje.
 	
-	\subsection{Brzina izvršavanja upita}
-	Zanimljiva stvar koja je uočena prilikom stvaranja aplikacije je neovisnost trajanja upita o veličini baze. Odabrani su najsloženiji upiti, što su upravo upiti za preporučavanje prijatelja te se \emph{Pythonovom} bibliotekom \emph{time} mjerilo vrijeme izvršavanja svakog upita. \\
-	Napravljeno je po deset baza za svaku od veličina iz skupa $\{50, 100, 150, \dots, 1000\}$ gdje elementi skupa predstavljaju broj osoba koji se nalaze u bazi podataka. Za svaku od tih baza upit je poslan za tri nasumično odabrana korisnika te su dobijeni sljedeći rezultati.\\
-	
-	\begin{center}
-		\includegraphics[scale=0.5]{slike/personal_graph.png}
-		\includegraphics[scale=0.5]{slike/business_graph.png}
-	\end{center}
-	
-	
-	Iznenađujuće vrijeme izvršavanja upita ostaje konstantno te traje nešto više od dvije sekunde. \\
-	Iako na prvu ruku rezultat izgleda neočekivano razlog u tome nalazimo na naviku korištenja relacijskih baza podataka gdje bi za većinu ovakvih upita bilo potrebno raditi Kartezijev produkt tablica za što je prirodno očekivati da će rastom veličine tablice trebati puno više vremena. \\
-	Međutim ovdje ne dolazi do Kartezijevog produkta već se pretraživanje odvija grafovskim algoritmima što daje veliko ubrzanje 
 	
 	\newpage
 	\section{Korištenje aplikacije}
@@ -688,8 +679,7 @@
 	Za kraj spomenimo da se korisnik može u svakom trenutku \emph{izlogirati} iz aplikacije i ponovo se vratiti na početni prozor. Također, nismo htjeli dodatno komplicirati bazu, no nije teško dodati dio autentifikacije korisnika pri ulasku u aplikaciju. Tada bi umjesto imena i prezimena korisnik ulazio u aplikaciju upisujući korisničko ime i pripadnu lozinku. 
 	
 	\section{Zaključak}
-	U ovome smo projektome zadatku uz korištenje \emph{Neo4j-a} i istoimenog modula u \emph{Pythonu} izgradili aplikaciju za interakciju sa bazom podataka \emph{Neo4j}. Baza pohranjuje podatke kakve bi mogli pronaći u društvenoj mreži. Realizirali smo upite pomoću kojih osobama dajemo preporuke  prijatelja na temelju poslovnih i osobnih karakteristika. Za potrebe aplikacije i zadatka izgenerirali smo podatke i njima napunili bazu. Omogućili smo dodavanje novih korisnika te osigurali konzistentnost podataka koje korisnik unosi. Programski kod koji smo pisali može se pronaći na repozitoriju (LINK). Također, spomenuli bi kako postoje mjesta u radu gdje smatramo da bi se projekt mogao poboljšati. Moguće je obogatiti bazu raznim vrhovima i bridovima, jedan od smislenijih za dodavanje je vrha Tvrtka u kojoj je korisnik zaposlen. 
-	
+	U ovome smo projektome zadatku uz korištenje \emph{Neo4j-a} i istoimenog modula u \emph{Pythonu} izgradili aplikaciju za interakciju sa bazom podataka \emph{Neo4j}. Baza pohranjuje podatke kakve bi mogli pronaći u društvenoj mreži. Realizirali smo upite pomoću kojih osobama dajemo preporuke  prijatelja na temelju poslovnih i osobnih karakteristika. Za potrebe aplikacije i zadatka izgenerirali smo podatke i njima napunili bazu. Omogućili smo dodavanje novih korisnika te osigurali konzistentnost podataka koje korisnik unosi. Programski kod koji smo pisali može se pronaći na \href{https://github.com/basioli-k/social_network}{\emph{repozitoriju}}. Također, spomenuli bi kako je moguće prirodno obogatiti bazu raznim vrhovima i bridovima. Smisleno bi bilo dodati firmu u kojoj korisnici se korisnici mogu zaposliti. To ovdje nije napravljeno jer smo smatrali da na ovaj način možemo prikazati dovoljno zanimljivih aspekata korištenih tehnologija. \\
 	Svoje znanje \emph{Pythona} smo uvelike nadogradili i vidjeli koliko truda je potrebno za izradu čak i jednostavnog modela društvene mreže. \emph{Neo4j} pokazao se kao učinkovit i intuitivan izbor baze podataka za ovakav problem u odnosu na druge baze podataka zbog načina na koji tretira veze između korisnika. 
 	
 	
