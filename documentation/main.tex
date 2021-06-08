@@ -524,19 +524,19 @@
 			
 		\end{minted}
 	\end{samepage}
-	
+	\newpage
+	\begin{samepage}
 	Finalno potrebno je provjeriti kombatibilnost korisnika. Sada je osim presjeka vještina u obzir uzet i presjek hobija. \\
 	Očito može biti važno da ljudi imaju iste vještine s obzirom da iz toga često proizlaze poznanstva, ali istom logikom važan je i presjek hobija. \\
 	Ako se dvoje ljudi bavi istom aktivnosti u slobodno vrijeme izgledno je da bi se mogli slagati ili se već poznaju. \\
+	
 	Ovime se finalizira upit koji za osobne preporuke ljudima:
-	\begin{samepage}
 		\begin{minted}[tabsize=1,breaklines]{java}
 			RETURN recommendation, size([skill IN p.skills WHERE skill IN recommendation.skills]) + size([hobby IN p.hobbies WHERE hobby IN recommendation.hobbies]) AS common 
 			ORDER BY common DESC LIMIT $limit;
 			
 		\end{minted}
 	\end{samepage}
-	\newpage
 	\begin{samepage}
 		Rezultate upita moguće je vidjeti na grafičkom sučelju:
 		\begin{figure}[h]
@@ -574,18 +574,16 @@
 	
 	Sve dijelove forme obavezno je popuniti pri registraciji. Dijelovi forme koje korisnik mora (korektno) popuniti su:
 	\begin{itemize}
-		\item ime i prezime: vrijednosti koje korisnik unosi moraju biti sastavljene samo od slova, ako je korisnik već u bazi dobit će prikladnu poruku
-		\item spol: bira se klikom na dvije ponuđene vrijednosti
-		\item datum rođenja: pronalazi se korištenjem kalendara, moguće je kretati se po mjesecima ili godini te odabrati određeni dan, nisu prikazani datumi koji nisu dozvoljeni u bazi
-		\item fakultet: bira se jedan među ponuđenima
-		\item godina upisa: unos godine koje je korisnik krenuo na fakultet, mora biti veća od godine rođenja uvećane za 18
-		\item godina završetka: unos godine koje je korisnik završio fakultet ili u slučaju da još studira koje ga godine planira završiti, razlika godina upisa i završetka mora biti između 5 i 10 godina da bi unos bio korektan
-		\item ocjena: unos prosjeka ocjena na fakultetu, mora biti decimalni broj koji je veći ili jednak 2.00 i manji ili jednak 5.00.
+		\item \textbf{name} i \textbf{surname} vrijednosti koje korisnik unosi moraju biti sastavljene samo od slova, ako je korisnik već u bazi dobit će prikladnu poruku
+		\item \textbf{gender} bira se klikom na dvije ponuđene vrijednosti
+		\item \textbf{date of birth} pronalazi se korištenjem kalendara, moguće je kretati se po mjesecima ili godini te odabrati određeni dan, nisu prikazani datumi koji nisu dozvoljeni u bazi
+		\item \textbf{college} bira se jedan među ponuđenima
+		\item \textbf{enrollment year} unos godine koje je korisnik krenuo na fakultet, mora biti veća od godine rođenja uvećane za 18
+		\item \textbf{graduate year} unos godine koje je korisnik završio fakultet ili u slučaju da još studira koje ga godine planira završiti, razlika godina upisa i završetka mora biti između 5 i 10 godina da bi unos bio korektan
+		\item \textbf{grade} unos prosjeka ocjena na fakultetu, mora biti decimalni broj koji je veći ili jednak 2.00 i manji ili jednak 5.00.
 	\end{itemize}
 	
-	Klikom na gumb provjeravaju se dotad unešene vrijednosti i u slučaju greške u skočnom prozoru piše opis greške pri unosu. 
-	
-	Ukoliko su sve vrijednosti ispravno unesene, pojavljuje se lista s vještinama koje su predodređene za fakultet koji je korisnik izabrao (Slika ~\ref{fig:forma}). Klikom miša na vještinu ona postane označena i moguće je na taj način označiti proizvoljan broj vještina koje će se pridodati korisniku pri registraciji u bazu. Kada je završio s odabirom klikne na gumb i ponovi postupak na listi svih hobija koji se nalaze u bazi. 
+	Ukoliko su sve vrijednosti ispravno unesene klikom na gumb pojavljuje se lista s vještinama koje su predodređene za fakultet koji je korisnik izabrao (Slika ~\ref{fig:forma}). Klikom miša na vještinu ona postane označena i moguće je na taj način označiti proizvoljan broj vještina koje će se pridodati korisniku pri registraciji u bazu. Kada je završio s odabirom klikne na gumb i ponovi postupak na listi svih hobija koji se nalaze u bazi. 
 	
 	Korisnik mora izabrati barem jedan hobi i bar jednu vještinu, u suprotnom iskoči prozorčić s porukom. 
 	
@@ -624,19 +622,19 @@
 		\end{center}
 	\end{figure}
 	
-	\subsubsection{Mjenjanje podatka}
+	\subsubsection{Mijenjanje podatka}
 	
 	Na dnu stranice s informacijama postoji mogućnost promjene nekih podataka. To je dodatna funkcionalnost koju smo odlučili implementirati kako bi poboljšali korisnikovo iskustvo korištenja aplikacije. Međutim, nismo smijeli dopustiti promjenu nekih podatka ili unos pogrešnih informacija.  
 	
-	Kako bi se podaci promjenili potrebno je upisati koju informaciju mijenjamo i novu vrijednost kojom je mjenjamo.(Slika~\ref{fig:change} Moguće je promjeniti ove informacije(potrebno je unijeti ključnu riječ točno kao što je navedeno):
+    Kako bi se podaci promjenili potrebno je upisati koju informaciju mijenjamo i novu vrijednost kojom je mjenjamo.(Slika~\ref{fig:change}) Potrebno je unijeti ključnu riječ točno kao što je navedeno:
 	\begin{samepage}
 		
 		
 		\begin{itemize}
-			\item \textbf{name} - mjenja ime, provjera se je li sastavljeno samo od slova i je li već postoji netko u bazi s kombinacijom novog imena i starog prezimena, ako da nije moguće izvršiti promjenu
-			\item \textbf{prezime} - mjenja prezime, analogno kao i za ime ostalo
-			\item \textbf{graduate year} - mjenja godinu završetka fakulteta, korisno ukoliko je osoba u međuvremenu položila fakultet, vrši s provjera je li korektno u odnosu na godinu početka studija
-			\item \textbf{grade} - mjenjanje ocjene, korisnik mora paziti na ocjena bude napisana u obliku x.yy, gdje je ocjena veća ili jednaka 2.0 i manja ili jednaka 5.0 
+			\item \textbf{name} mijenja ime, provjera se je li sastavljeno samo od slova i je li već postoji netko u bazi s kombinacijom novog imena i starog prezimena, ako da nije moguće izvršiti promjenu
+			\item \textbf{surname} mjenja prezime, analogno kao i za ime ostalo
+			\item \textbf{graduate year} mjenja godinu završetka fakulteta, korisno ukoliko je osoba u međuvremenu položila fakultet, vrši s provjera je li korektno u odnosu na godinu početka studija
+			\item \textbf{grade} mjenjanje ocjene, korisnik mora paziti na ocjena bude napisana u obliku x.yy, gdje je ocjena veća ili jednaka 2.0 i manja ili jednaka 5.0 
 		\end{itemize}
 	\end{samepage}
 	
@@ -677,7 +675,7 @@
 	Nakon što se klikne gumb i doda prijateljstvo u bazu, gumb \emph{Add} postaje onemogućen. Odlaskom s kartice i kasnije ponovim ulaskom na nju, osobe koju smo prethodno dodali nema na prikazu, već se predlažu nove osobe koje nam još nisu prijatelji. Primjer kartice smo prikazali na slici~\ref{fig:business_rec}.
 	
 	Za kraj spomenimo da se korisnik može u svakom trenutku \emph{izlogirati} iz aplikacije i ponovo se vratiti na početni prozor. Također, nismo htjeli dodatno komplicirati bazu, no nije teško dodati dio autentifikacije korisnika pri ulasku u aplikaciju. Tada bi umjesto imena i prezimena korisnik ulazio u aplikaciju upisujući korisničko ime i pripadnu lozinku. 
-	
+	\newpage
 	\section{Zaključak}
 	U ovome smo projektome zadatku uz korištenje \emph{Neo4j-a} i istoimenog modula u \emph{Pythonu} izgradili aplikaciju za interakciju sa bazom podataka \emph{Neo4j}. Baza pohranjuje podatke kakve bi mogli pronaći u društvenoj mreži. Realizirali smo upite pomoću kojih osobama dajemo preporuke  prijatelja na temelju poslovnih i osobnih karakteristika. Za potrebe aplikacije i zadatka izgenerirali smo podatke i njima napunili bazu. Omogućili smo dodavanje novih korisnika te osigurali konzistentnost podataka koje korisnik unosi. Programski kod koji smo pisali može se pronaći na \href{https://github.com/basioli-k/social_network}{\emph{repozitoriju}}. Također, spomenuli bi kako je moguće prirodno obogatiti bazu raznim vrhovima i bridovima. Smisleno bi bilo dodati firmu u kojoj korisnici se korisnici mogu zaposliti. To ovdje nije napravljeno jer smo smatrali da na ovaj način možemo prikazati dovoljno zanimljivih aspekata korištenih tehnologija. \\
 	Svoje znanje \emph{Pythona} smo uvelike nadogradili i vidjeli koliko truda je potrebno za izradu čak i jednostavnog modela društvene mreže. \emph{Neo4j} pokazao se kao učinkovit i intuitivan izbor baze podataka za ovakav problem u odnosu na druge baze podataka zbog načina na koji tretira veze između korisnika. 
