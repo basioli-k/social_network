@@ -60,9 +60,9 @@ class Person:
 
         if datetime.date.today().year - self.date_of_birth.year > OLD_LIMIT:
             cypher += " WITH p, recommendation, size([x IN p.skills WHERE x IN recommendation.skills]) AS common_skills ORDER BY common_skills DESC LIMIT $first_limit"
-            cypher += " RETURN recommendation, abs(p.date_of_birth.year - recommendation.date_of_birth.year) AS birth_delta ORDER BY birth_delta DESC LIMIT $limit;"
+            cypher += " RETURN recommendation, abs(p.date_of_birth.year - recommendation.date_of_birth.year) AS birth_delta ORDER BY birth_delta LIMIT $limit;"
         else:
-            cypher += " WITH p, recommendation, abs(p.date_of_birth.year - recommendation.date_of_birth.year) AS birth_delta ORDER BY birth_delta DESC LIMIT $first_limit"
+            cypher += " WITH p, recommendation, abs(p.date_of_birth.year - recommendation.date_of_birth.year) AS birth_delta ORDER BY birth_delta LIMIT $first_limit"
             cypher += " RETURN recommendation, size([x IN p.skills WHERE x IN recommendation.skills]) AS common_skills ORDER BY common_skills DESC LIMIT $limit;"
 
         db = Database.get_instance(path)
