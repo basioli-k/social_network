@@ -1,7 +1,6 @@
 """
 tab_...  = function to call screen...
 screen_... = tkinter window 
-
 tab_information = user info
 tab_friends = info about friends
 tab_rec = recommendation page
@@ -41,29 +40,6 @@ class ScrollableFrame(Frame):
 
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-class ScrollableFrame_min(Frame):
-    def __init__(self, container, *args, **kwargs):
-        super().__init__(container, *args, **kwargs)
-        canvas = Canvas(self)
-        scrollbar = Scrollbar(self, orient="vertical", command=canvas.yview)
-        self.scrollable_frame = Frame(canvas)
-
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(
-                scrollregion=canvas.bbox("all")
-            )
-        )
-
-        canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.config(width=100, height=100)
-        
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
-
-
 
 #CONTROLLERS-----
 def login_ok():
@@ -192,7 +168,7 @@ def login():
            text="Login", width=10, height=2, 
            command = login_verify
            ).pack(side=TOP)
-    
+    login_screen.mainloop()
 # window for registration - TODO
 def register():
     global register_screen
@@ -529,9 +505,10 @@ def tab_information():
     Button(info, fg="white",
            text="Change informations",bg="#547fa3", 
            height=1, width=20, 
-           command=main_window,
+           command=change,
            font=("Times", 15)
            ).pack(pady = 50)  
+    screen_information.mainloop()
     
 # tab friends
 def tab_friends():
@@ -635,6 +612,7 @@ def tab_friends():
            command=clear_all,
            font=("Times", 13)
            ).pack(side=BOTTOM, pady=5)
+    screen_friends.mainloop()
     
 # tab business recommendation
 def tab_brec():
@@ -748,7 +726,8 @@ def tab_brec():
                 button_list.append(btn_add)
                 nb -=1
                 index +=1
-                    
+    screen_brec.mainloop()
+                
 # tab friends recommendation
 def tab_frec():
     global screen_frec
@@ -860,10 +839,9 @@ def tab_frec():
                 button_list.append(btn_add)
                 nb -=1
                 index +=1
-    
+    screen_frec.mainloop()
 #--------------------------------------------------------------------
 
-# TODO: spojit ovo s bazom
 def login_verify():
     user_name = name_verify.get()
     user_surname = surname_verify.get()
@@ -878,7 +856,7 @@ def login_verify():
     else:
         login_ok()
 #-------------------------------------------------------------------------        
-# TODO:dodat dio za unos podataka i provjerit je li vec u bazi
+
 def add_hobbies(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollment_year, u_graduate_year, u_grade):
     #print(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollment_year, u_graduate_year, u_grade)
     skills = []
@@ -946,6 +924,7 @@ def login_error(message):
     Button(login_error_screen, text="Try again.",
            bg="#547fa3", 
            command=login_error_screen_delete).pack()
+    login_error_screen.mainloop()
     
 def login_error_screen_delete():
     login_error_screen.destroy()   
@@ -975,6 +954,7 @@ def see_more_s_h(key, screen):
     Button(see_more_screen, text="Hide",
            bg="#547fa3", height=2, width=10,
            command=see_more_screen_delete).pack(pady=30)
+    see_more_screen.mainloop()
     
 def see_more_screen_delete():
     see_more_screen.destroy()  
@@ -1002,6 +982,8 @@ def see_skills():
     Button(skills_screen, text="Hide",
            bg="#547fa3", height=2, width=10,
            command=skills_screen_delete).pack(pady=30)
+    skills_screen.mainloop()
+    
 def skills_screen_delete():
     skills_screen.destroy()   
     
@@ -1027,6 +1009,7 @@ def see_hobbies():
     Button(hobbies_screen, text="Hide",
            bg="#547fa3", height=3, width=10,
            command=hobbies_screen_delete).pack(pady=30)
+    hobbies_screen.mainloop()
     
 def hobbies_screen_delete():
     hobbies_screen.destroy()
@@ -1103,6 +1086,7 @@ def see_college():
     Button(college_screen, text="Hide",
            bg="#547fa3", height=3, width=10,
            command=college_screen_delete).pack(pady=30)
+    college_screen.mainloop()
     
 def college_screen_delete():
     college_screen.destroy()
@@ -1175,7 +1159,7 @@ def search(word):
                    bg="#547fa3", height=1, width=10,
                    command=lambda person=f, screen=screen_friends: person_info(person, screen)).pack(side=RIGHT)
             frame.pack(pady=10)
-
+#---------------------------------------------------------------------------------
     
 def add_friend(person, screen, index, b_l):
     if user.make_friendship(person) == True:
@@ -1200,6 +1184,7 @@ def friendship_result(screen, message):
     Button(friendship_screen, text="OK",
            bg="#547fa3", 
            command=friendship_screen_delete).pack()
+    friendship_screen.mainloop()
     
 def friendship_screen_delete():
     friendship_screen.destroy() 
@@ -1296,12 +1281,13 @@ def person_info(person, screen):
         
     Button(person_screen, text="Hide",
            bg="#547fa3", height=1, width=10,
-           command=person_screen_delete).pack(pady=30)    
+           command=person_screen_delete).pack(pady=30) 
+    person_screen.mainloop()
+    
 def person_screen_delete():
     person_screen.destroy()    
 #-------------------------------------------------------------    
 def add_skills():
-    
     global frame_last    
     u_name = name.get()
     if not u_name.isalpha():
@@ -1389,7 +1375,7 @@ def add_skills():
                             add_hobbies(a1, a2, a3, a4, a5, a6, a7, a8)
            )
     b.pack(side=RIGHT, pady = 10, padx=5)
-    
+#-------------------------------------------------------------------------    
     
 def register_user(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollment_year, u_graduate_year, u_grade, skills):
     #print(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollment_year, u_graduate_year, u_grade, skills)
@@ -1411,6 +1397,7 @@ def register_user(u_name, u_surname, u_birthday, u_gender, u_college, u_enrollme
     person.add_to_college(u_college, u_enrollment_year, u_graduate_year, round(u_grade,2))
     pop_up("YOU ARE NOW REGISTERED. \n NOW LOG IN AT MAIN PAGE.")
     
+#-------------------------------------    
 # pop up window for friendships
 def pop_up(message):
     global pop_screen
@@ -1425,9 +1412,110 @@ def pop_up(message):
     Button(pop_screen, text="Try Again",
            bg="#547fa3", 
            command=pop_screen_delete).pack()
+    pop_screen.mainloop()
     
 def pop_screen_delete():
     pop_screen.destroy() 
-
+#-----------------------------------------
+def change():
+    global change_screen
+    change_screen = Toplevel(screen_information)
+    change_screen.title("Change information")
+    change_screen.geometry("450x300")
+    change_screen.configure(bg='#f78383')
+    Label(change_screen, 
+          text="What you want to change? \n Enter keyword like name/enrollment year...", 
+          font=("Times", 13, "bold"),
+          bg='#f78383').pack(pady=10)
+    global change_key 
+    change_key = StringVar()
+    global entry_key
+    entry_key = Entry(change_screen, textvariable=change_key)
+    entry_key.pack()
+    Label(change_screen, 
+          text="New infomation: ", 
+          font=("Times", 13, "bold"),
+          bg='#f78383').pack(pady=10)
+    global change_value
+    change_value = StringVar()
+    global entry_value
+    entry_value = Entry(change_screen, textvariable=change_value)
+    entry_value.pack(pady = 10)
     
+    Button(change_screen, text="Change",
+           bg="#547fa3", 
+           command=verify_change).pack(pady = 10)
+    global message
+    message = Label(change_screen, 
+          text="", 
+          font=("Times", 15, "bold"),
+          bg='#f78383')
+    message.pack(pady=10)
+    change_screen.mainloop()
+
+def verify_change():
+    key = change_key.get()
+    value = change_value.get()
+    if key == "name":
+        if value == "":
+            message.configure(text = "New value is empty!")
+        elif not value.isalpha():
+            message.configure(text = "New value is not valid!")
+        elif user.change_name(value) == True:
+            change_screen.destroy()
+            screen_information.destroy()
+            user.name = value
+            tab_information()
+        else:
+            message.configure(text = user.change_name(value))
+    elif key == "surname":
+        if value == "":
+            message.configure(text = "New value is empty!")
+        elif not value.isalpha():
+            message.configure(text = "New value is not valid!")
+        elif user.change_surname(value) == True:
+            change_screen.destroy()
+            screen_information.destroy()
+            user.surname = value
+            tab_information()
+        else:
+            message.configure(text = user.change_surname(value))
+    elif key == "graduate year":
+        if value == "":
+            message.configure(text = "New value is empty!")
+        elif not value.isdigit():
+            message.configure(text = "New value is not valid!")
+        elif int(value) < ey + 5 or int(value) > ey + 10:
+            message.configure(text = "New value is not valid!")
+        elif user.change_gy(int(value)) == True:
+            change_screen.destroy()
+            screen_information.destroy()
+            gy = int(value)
+            tab_information()
+        else:
+            message.configure(text = user.change_gy(int(value)))
+    elif key == "grade":
+        if value == "":
+            message.configure(text = "New value is empty!")
+            return
+        try:
+            grade = float(value)
+       
+        except ValueError:
+            message.configure(text = "New value is not valid!")
+            return
+        
+        if float(value) < 2.0 or float(value) > 5.0:
+            message.configure(text = "New value is not valid!")
+        elif user.change_grade(round(float(value),2)) == True:
+            change_screen.destroy()
+            screen_information.destroy()
+            grade = float(value)
+            tab_information()  
+        else:
+            message.configure(text = user.change_grade(round(float(value),2)))
+    else:
+        message.configure(text = "Keyword is not correct!")
+        
+#---------------------------------------------------------------
 main_window()
