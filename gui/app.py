@@ -1424,7 +1424,7 @@ def change():
     change_screen.geometry("450x300")
     change_screen.configure(bg='#f78383')
     Label(change_screen, 
-          text="What you want to change? \n Enter keyword like name/enrollment year...", 
+          text="I want to change: \n (name/surname/graduate year/grade)", 
           font=("Times", 13, "bold"),
           bg='#f78383').pack(pady=10)
     global change_key 
@@ -1433,7 +1433,7 @@ def change():
     entry_key = Entry(change_screen, textvariable=change_key)
     entry_key.pack()
     Label(change_screen, 
-          text="New infomation: ", 
+          text="Into: ", 
           font=("Times", 13, "bold"),
           bg='#f78383').pack(pady=10)
     global change_value
