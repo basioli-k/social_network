@@ -256,9 +256,56 @@ class Person:
                                  
                                  
                                  
+    def change_name(self, name, path = "../database/database.cfg"):
+        if not Person.get_person_by_name_surname(name, self.surname):
+            db = Database.get_instance(path)
+            with db.driver.session() as session:
+                result = session.run("MATCH (p:Person {id : $id}) SET p.name = $name RETURN  p;", 
+                                     { "id" : self.id, "name" : name})
+                if not result:
+                    db.close()
+                    return "Error - not added"
+                else:
+                    db.close()
+                    return True                 
+        else:
+            return "There is user in database with name and surname!"                         
                                  
-                                 
-                                 
-                                 
-                                 
-                                 	
+    def change_surname(self, surname, path = "../database/database.cfg"):
+        if not Person.get_person_by_name_surname(self.name, surname):
+            db = Database.get_instance(path)
+            with db.driver.session() as session:
+                result = session.run("MATCH (p:Person {id : $id}) SET p.surname = $surname RETURN  p;", 
+                                     { "id" : self.id, "surname" : surname})
+                if not result:
+                    db.close()
+                    return "Error - not added"
+                else:
+                    db.close()
+                    return True                 
+        else:
+            return "There is user in database with name and surname!"                            	
+
+    def change_gy(self,  gy, path = "../database/database.cfg" ):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {id : $id})-[a:ATTENDED]-() SET a.graduate_year = $gy RETURN a;",
+                                 {"id" : self.id, "gy" : gy})                     
+            if not result:
+                db.close()
+                return "Error - not added"
+            else:
+                db.close()
+                return True 
+            
+    def change_grade(self,  grade, path = "../database/database.cfg" ):
+        db = Database.get_instance(path)
+        with db.driver.session() as session:
+            result = session.run("MATCH (p:Person {id : $id})-[a:ATTENDED]-() SET a.grade = $grade RETURN a;",
+                                 {"id" : self.id, "grade" : grade})                     
+            if not result:
+                db.close()
+                return "Error - not added"
+            else:
+                db.close()
+                return True 
